@@ -8,7 +8,7 @@ export default function LoginPage() {
   const nav = useNavigate();
   const loc = useLocation();
   const from = (loc.state as { from?: string } | null)?.from ?? "/menu";
-  const [u, setU] = useState("centralita");
+  const [u, setU] = useState("user1");
   const [p, setP] = useState("");
   const [err, setErr] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
@@ -58,9 +58,10 @@ export default function LoginPage() {
           </Btn>
         </form>
         <p className="text-xs text-slate-500 mt-6">
-          Entorno de prueba: usuario por defecto <code className="bg-slate-100 px-1 rounded">centralita</code> y
-          contraseña <code className="bg-slate-100 px-1 rounded">cambiar123</code> salvo que se configure en el
-          servidor.
+          Entorno de prueba: <code className="bg-slate-100 px-1 rounded">user1</code> /{" "}
+          <code className="bg-slate-100 px-1 rounded">user1</code> (sobrescribible con{" "}
+          <code className="bg-slate-100 px-1 rounded">APP_USER</code> y{" "}
+          <code className="bg-slate-100 px-1 rounded">APP_PASSWORD</code> en el servidor).
         </p>
       </div>
     </div>

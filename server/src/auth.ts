@@ -62,14 +62,14 @@ export function authMiddleware(req: Request, res: Response, next: NextFunction) 
   next();
 }
 
-const DEFAULT_USER = process.env.APP_USER ?? "centralita";
+const DEFAULT_USER = process.env.APP_USER ?? "user1";
 
 export async function checkPassword(username: string, password: string): Promise<boolean> {
   if (username !== DEFAULT_USER) return false;
   if (process.env.APP_PASSWORD_HASH) {
     return bcrypt.compare(password, process.env.APP_PASSWORD_HASH);
   }
-  const plain = process.env.APP_PASSWORD ?? "cambiar123";
+  const plain = process.env.APP_PASSWORD ?? "user1";
   return password === plain;
 }
 
