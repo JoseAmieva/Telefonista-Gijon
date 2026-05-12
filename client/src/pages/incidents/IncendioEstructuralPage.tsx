@@ -367,14 +367,8 @@ function Ocupante({
         </div>
       )}
       <RadioYesNo
-        name="oc_vm"
-        label="5. ¿Las ventanas dan a la misma fachada que el portal?"
-        value={form.oc_ventanas_misma_fachada_portal}
-        onChange={(v: string) => patch("oc_ventanas_misma_fachada_portal", v)}
-      />
-      <RadioYesNo
         name="oc_vo"
-        label="6. ¿Dan las ventanas a otra fachada distinta del portal?"
+        label="5. ¿Dan las ventanas a otra fachada distinta del portal?"
         value={form.oc_ventanas_otra_fachada}
         onChange={(v: string) => patch("oc_ventanas_otra_fachada", v)}
       />
@@ -390,7 +384,7 @@ function Ocupante({
       )}
       <RadioYesNo
         name="oc_vp"
-        label="7. ¿Dan las ventanas solo a patio interior?"
+        label="6. ¿Dan las ventanas solo a patio interior?"
         value={form.oc_ventanas_solo_patio}
         onChange={(v: string) => patch("oc_ventanas_solo_patio", v)}
       />
@@ -447,6 +441,17 @@ function VecinoMismo({
           value={form.vm_origen_ventana_portal}
           onChange={(v: string) => patch("vm_origen_ventana_portal", v)}
         />
+      )}
+      {form.vm_origen === "ventana" && form.vm_origen_ventana_portal === "no" && (
+        <div>
+          <Label>Nombre de la calle a la que da la ventana</Label>
+          <input
+            className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"
+            value={form.vm_ventana_calle}
+            onChange={(e) => patch("vm_ventana_calle", e.target.value)}
+            placeholder="Ej. calle lateral, travesía…"
+          />
+        </div>
       )}
       {form.vm_origen === "puerta" && (
         <RadioYesNo

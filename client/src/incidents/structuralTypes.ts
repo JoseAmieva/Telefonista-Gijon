@@ -35,7 +35,6 @@ export const emptyStructuralForm = (): StructuralFormState => ({
   oc_motivo_no_salir: "",
   oc_puerta_abierta: "",
   oc_puerta_detalle: "",
-  oc_ventanas_misma_fachada_portal: "",
   oc_ventanas_otra_fachada: "",
   oc_ventanas_otra_calle: "",
   oc_ventanas_solo_patio: "",
@@ -44,6 +43,7 @@ export const emptyStructuralForm = (): StructuralFormState => ({
   vm_humo_llama: "",
   vm_origen: "",
   vm_origen_ventana_portal: "",
+  vm_ventana_calle: "",
   vm_origen_puerta_picar: "",
   vm_oyen_gente: "",
   vm_humo_fuera: "",
@@ -83,7 +83,6 @@ export type StructuralFormState = {
   oc_motivo_no_salir: string;
   oc_puerta_abierta: string;
   oc_puerta_detalle: string;
-  oc_ventanas_misma_fachada_portal: string;
   oc_ventanas_otra_fachada: string;
   oc_ventanas_otra_calle: string;
   oc_ventanas_solo_patio: string;
@@ -91,6 +90,7 @@ export type StructuralFormState = {
   vm_humo_llama: string;
   vm_origen: string;
   vm_origen_ventana_portal: string;
+  vm_ventana_calle: string;
   vm_origen_puerta_picar: string;
   vm_oyen_gente: string;
   vm_humo_fuera: string;

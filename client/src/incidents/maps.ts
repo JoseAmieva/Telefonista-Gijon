@@ -12,7 +12,7 @@ export function buildMapsQueryFromStructural(state: StructuralFormState): string
   if (state.ubicacion_zona === "urbana") {
     const parts = [
       state.urb_calle,
-      state.urb_portal && `portal ${state.urb_portal}`,
+      state.urb_portal && String(state.urb_portal).trim(),
       state.urb_piso && `piso ${state.urb_piso}`,
       state.urb_puerta && `puerta ${state.urb_puerta}`,
       state.urb_barrio,
