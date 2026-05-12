@@ -1,10 +1,10 @@
 import { useEffect, useRef, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { useAuthDraft } from "../context/AuthDraftContext";
-import { Btn, FieldGrid, Label, SectionTitle } from "../components/ui";
-import { INCIDENT_LABEL } from "../incidents/types";
-import type { IncidentKey } from "../incidents/types";
-import { apiSaveCall } from "../api";
+import { useAuthDraft } from "../../context/AuthDraftContext";
+import { Btn, FieldGrid, Label, SectionTitle } from "../../components/ui";
+import { INCIDENT_LABEL } from "../../incidents/types";
+import type { IncidentKey } from "../../incidents/types";
+import { apiSaveCall } from "../../api";
 
 export default function GenericIncidentPage({ incidentKey }: { incidentKey: IncidentKey }) {
   const loc = useLocation();

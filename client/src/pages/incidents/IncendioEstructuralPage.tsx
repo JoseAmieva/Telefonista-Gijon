@@ -1,11 +1,11 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { useAuthDraft } from "../context/AuthDraftContext";
-import { Btn, FieldGrid, Label, RadioList, RadioYesNo, SectionTitle, TipBox } from "../components/ui";
-import { CHULETA_AUTOPROTECCION_QUEDARSE, CHULETA_AUTOPROTECCION_SALIR } from "../incidents/tips";
-import { buildMapsUrlFromStructural } from "../incidents/maps";
-import { emptyStructuralForm, type StructuralFormState } from "../incidents/structuralTypes";
-import { apiSaveCall } from "../api";
+import { useAuthDraft } from "../../context/AuthDraftContext";
+import { Btn, FieldGrid, Label, RadioList, RadioYesNo, SectionTitle, TipBox } from "../../components/ui";
+import { CHULETA_AUTOPROTECCION_QUEDARSE, CHULETA_AUTOPROTECCION_SALIR } from "../../incidents/tips";
+import { buildMapsUrlFromStructural } from "../../incidents/maps";
+import { emptyStructuralForm, type StructuralFormState } from "../../incidents/structuralTypes";
+import { apiSaveCall } from "../../api";
 
 type Props = {
   callTime: string;
@@ -48,7 +48,7 @@ function StructuralForm({ callTime, savedCallId, initial }: Props) {
   }, [form, callTime, publishDraft]);
 
   function patch<K extends keyof StructuralFormState>(k: K, v: StructuralFormState[K]) {
-    setForm((f) => ({ ...f, [k]: v }));
+    setForm((f: StructuralFormState) => ({ ...f, [k]: v }));
   }
 
   async function save() {
@@ -114,7 +114,7 @@ function StructuralForm({ callTime, savedCallId, initial }: Props) {
             name="zona"
             label="Zona"
             value={form.ubicacion_zona}
-            onChange={(v) => patch("ubicacion_zona", v as StructuralFormState["ubicacion_zona"])}
+            onChange={(v: string) => patch("ubicacion_zona", v as StructuralFormState["ubicacion_zona"])}
             options={[
               { value: "urbana", label: "Zona urbana" },
               { value: "rural", label: "Zona rural" },
@@ -225,7 +225,7 @@ function StructuralForm({ callTime, savedCallId, initial }: Props) {
             name="tipo_est"
             label="Selección"
             value={form.tipo_estructura}
-            onChange={(v) => patch("tipo_estructura", v as StructuralFormState["tipo_estructura"])}
+            onChange={(v: string) => patch("tipo_estructura", v as StructuralFormState["tipo_estructura"])}
             options={[
               { value: "piso", label: "Piso" },
               { value: "unifamiliar", label: "Vivienda unifamiliar" },
@@ -253,7 +253,7 @@ function StructuralForm({ callTime, savedCallId, initial }: Props) {
             name="id_alert"
             label="Quién alerta"
             value={form.identificacion_alertante}
-            onChange={(v) => patch("identificacion_alertante", v as StructuralFormState["identificacion_alertante"])}
+            onChange={(v: string) => patch("identificacion_alertante", v as StructuralFormState["identificacion_alertante"])}
             options={[
               { value: "ocupante", label: "Ocupante de la vivienda / usuario" },
               { value: "vecino_mismo", label: "Vecino del mismo edificio" },
@@ -290,7 +290,7 @@ function Ocupante({
         name="oc_hl"
         label="1. ¿Es humo o llama?"
         value={form.oc_humo_o_llama}
-        onChange={(v) => patch("oc_humo_o_llama", v)}
+        onChange={(v: string) => patch("oc_humo_o_llama", v)}
         options={[
           { value: "humo", label: "Humo" },
           { value: "llama", label: "Llama" },
@@ -312,7 +312,7 @@ function Ocupante({
           onChange={(e) => patch("oc_descripcion", e.target.value)}
         />
       </div>
-      <RadioYesNo name="oc_mas" label="2. ¿Hay más ocupantes en la vivienda?" value={form.oc_mas_ocupantes} onChange={(v) => patch("oc_mas_ocupantes", v)} />
+      <RadioYesNo name="oc_mas" label="2. ¿Hay más ocupantes en la vivienda?" value={form.oc_mas_ocupantes} onChange={(v: string) => patch("oc_mas_ocupantes", v)} />
       {form.oc_mas_ocupantes === "si" && (
         <div>
           <Label>Número de ocupantes</Label>
@@ -327,7 +327,7 @@ function Ocupante({
         name="oc_salir"
         label="3. ¿Puede usted y otros ocupantes abandonar la vivienda por sí mismos?"
         value={form.oc_pueden_salir}
-        onChange={(v) => patch("oc_pueden_salir", v)}
+        onChange={(v: string) => patch("oc_pueden_salir", v)}
       />
       {form.oc_pueden_salir === "no" && (
         <div className="space-y-3">
@@ -343,7 +343,7 @@ function Ocupante({
             name="oc_mot"
             label="Motivo"
             value={form.oc_motivo_no_salir}
-            onChange={(v) => patch("oc_motivo_no_salir", v)}
+            onChange={(v: string) => patch("oc_motivo_no_salir", v)}
             options={[
               { value: "atrapamiento", label: "Atrapamiento por el incendio" },
               { value: "movilidad", label: "Movilidad reducida" },
@@ -355,7 +355,7 @@ function Ocupante({
           </div>
         </div>
       )}
-      <RadioYesNo name="oc_puerta" label="4. ¿Está la puerta de la vivienda abierta?" value={form.oc_puerta_abierta} onChange={(v) => patch("oc_puerta_abierta", v)} />
+      <RadioYesNo name="oc_puerta" label="4. ¿Está la puerta de la vivienda abierta?" value={form.oc_puerta_abierta} onChange={(v: string) => patch("oc_puerta_abierta", v)} />
       {form.oc_puerta_abierta === "no" && (
         <div>
           <Label>Detalle (¿puede abrirla el alertante?, ¿hay más llaves?, ¿vueltas echadas?)</Label>
@@ -370,13 +370,13 @@ function Ocupante({
         name="oc_vm"
         label="5. ¿Las ventanas dan a la misma fachada que el portal?"
         value={form.oc_ventanas_misma_fachada_portal}
-        onChange={(v) => patch("oc_ventanas_misma_fachada_portal", v)}
+        onChange={(v: string) => patch("oc_ventanas_misma_fachada_portal", v)}
       />
       <RadioYesNo
         name="oc_vo"
         label="6. ¿Dan las ventanas a otra fachada distinta del portal?"
         value={form.oc_ventanas_otra_fachada}
-        onChange={(v) => patch("oc_ventanas_otra_fachada", v)}
+        onChange={(v: string) => patch("oc_ventanas_otra_fachada", v)}
       />
       {form.oc_ventanas_otra_fachada === "si" && (
         <div>
@@ -392,7 +392,7 @@ function Ocupante({
         name="oc_vp"
         label="7. ¿Dan las ventanas solo a patio interior?"
         value={form.oc_ventanas_solo_patio}
-        onChange={(v) => patch("oc_ventanas_solo_patio", v)}
+        onChange={(v: string) => patch("oc_ventanas_solo_patio", v)}
       />
     </section>
   );
@@ -412,7 +412,7 @@ function VecinoMismo({
         name="vm_donde"
         label="1. ¿Dónde se encuentra usted?"
         value={form.vm_donde}
-        onChange={(v) => patch("vm_donde", v)}
+        onChange={(v: string) => patch("vm_donde", v)}
         options={[
           { value: "vivienda_propia", label: "En su propia vivienda" },
           { value: "rellano", label: "En el rellano" },
@@ -423,7 +423,7 @@ function VecinoMismo({
         name="vm_hl"
         label="2. ¿Qué ve: humo o llama?"
         value={form.vm_humo_llama}
-        onChange={(v) => patch("vm_humo_llama", v)}
+        onChange={(v: string) => patch("vm_humo_llama", v)}
         options={[
           { value: "humo", label: "Humo" },
           { value: "llama", label: "Llama" },
@@ -433,7 +433,7 @@ function VecinoMismo({
         name="vm_origen"
         label="3. ¿De dónde proviene el humo o las llamas?"
         value={form.vm_origen}
-        onChange={(v) => patch("vm_origen", v)}
+        onChange={(v: string) => patch("vm_origen", v)}
         options={[
           { value: "ventana", label: "Ventana" },
           { value: "puerta", label: "Puerta" },
@@ -445,7 +445,7 @@ function VecinoMismo({
           name="vm_ov"
           label="¿Esa ventana da a la calle del portal?"
           value={form.vm_origen_ventana_portal}
-          onChange={(v) => patch("vm_origen_ventana_portal", v)}
+          onChange={(v: string) => patch("vm_origen_ventana_portal", v)}
         />
       )}
       {form.vm_origen === "puerta" && (
@@ -453,15 +453,15 @@ function VecinoMismo({
           name="vm_pic"
           label="¿Han probado a picar?"
           value={form.vm_origen_puerta_picar}
-          onChange={(v) => patch("vm_origen_puerta_picar", v)}
+          onChange={(v: string) => patch("vm_origen_puerta_picar", v)}
         />
       )}
-      <RadioYesNo name="vm_oyen" label="4. ¿Oyen gente dentro?" value={form.vm_oyen_gente} onChange={(v) => patch("vm_oyen_gente", v)} />
+      <RadioYesNo name="vm_oyen" label="4. ¿Oyen gente dentro?" value={form.vm_oyen_gente} onChange={(v: string) => patch("vm_oyen_gente", v)} />
       <RadioYesNo
         name="vm_fuera"
         label="5. ¿Hay humo o llamas fuera de la vivienda (patio de luces, caja de escalera)?"
         value={form.vm_humo_fuera}
-        onChange={(v) => patch("vm_humo_fuera", v)}
+        onChange={(v: string) => patch("vm_humo_fuera", v)}
       />
       <div>
         <Label>6. Humo: denso o leve, y color</Label>
@@ -497,7 +497,7 @@ function VecinoOtro({
         name="vo_donde"
         label="1. ¿Dónde se encuentra usted?"
         value={form.vo_donde}
-        onChange={(v) => patch("vo_donde", v)}
+        onChange={(v: string) => patch("vo_donde", v)}
         options={[
           { value: "calle", label: "En la calle" },
           { value: "vivienda", label: "En la vivienda" },
@@ -517,7 +517,7 @@ function VecinoOtro({
         name="vo_hl"
         label="2. ¿Qué ve: humo o llama?"
         value={form.vo_humo_llama}
-        onChange={(v) => patch("vo_humo_llama", v)}
+        onChange={(v: string) => patch("vo_humo_llama", v)}
         options={[
           { value: "humo", label: "Humo" },
           { value: "llama", label: "Llama" },
@@ -527,7 +527,7 @@ function VecinoOtro({
         name="vo_origen"
         label="3. ¿De dónde proviene el humo o las llamas?"
         value={form.vo_origen}
-        onChange={(v) => patch("vo_origen", v)}
+        onChange={(v: string) => patch("vo_origen", v)}
         options={[
           { value: "ventana", label: "Ventana" },
           { value: "tejado", label: "Tejado" },
