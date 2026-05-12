@@ -6,7 +6,7 @@ export type IncidentKey =
   | "rescate"
   | "acceso_vivienda"
   | "fachadas"
-  | "helicopteros"
+  | "himenopteros"
   | "otros";
 
 export const INCIDENT_LABEL: Record<IncidentKey, string> = {
@@ -17,7 +17,7 @@ export const INCIDENT_LABEL: Record<IncidentKey, string> = {
   rescate: "Rescate",
   acceso_vivienda: "Acceso a vivienda",
   fachadas: "Fachadas",
-  helicopteros: "Helicópteros",
+  himenopteros: "Himenópteros",
   otros: "Otros",
 };
 
@@ -30,7 +30,7 @@ export const INCIDENT_SPECTATOR_BG: Record<IncidentKey, string> = {
   rescate: "bg-violet-100 border-violet-300",
   acceso_vivienda: "bg-amber-100 border-amber-300",
   fachadas: "bg-teal-100 border-teal-300",
-  helicopteros: "bg-cyan-100 border-cyan-300",
+  himenopteros: "bg-cyan-100 border-cyan-300",
   otros: "bg-slate-200 border-slate-400",
 };
 
@@ -41,6 +41,6 @@ export const TELEFONISTA_ROWS: { label?: string; keys: IncidentKey[] }[] = [
   },
   { keys: ["accidente_trafico", "rescate"] },
   { keys: ["acceso_vivienda", "fachadas"] },
-  { keys: ["helicopteros"] },
+  { keys: ["himenopteros"] },
   { keys: ["otros"] },
 ];

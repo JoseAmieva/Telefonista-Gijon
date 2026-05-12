@@ -6,7 +6,7 @@ export type IncidentKey =
   | "rescate"
   | "acceso_vivienda"
   | "fachadas"
-  | "helicopteros"
+  | "himenopteros"
   | "otros";
 
 export type CallRecord = {

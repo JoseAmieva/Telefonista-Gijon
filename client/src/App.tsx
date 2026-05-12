@@ -40,7 +40,8 @@ function AppRoutes() {
         <Route path="/t/rescate" element={<GenericIncidentPage incidentKey="rescate" />} />
         <Route path="/t/acceso-vivienda" element={<GenericIncidentPage incidentKey="acceso_vivienda" />} />
         <Route path="/t/fachadas" element={<GenericIncidentPage incidentKey="fachadas" />} />
-        <Route path="/t/helicopteros" element={<GenericIncidentPage incidentKey="helicopteros" />} />
+        <Route path="/t/himenopteros" element={<GenericIncidentPage incidentKey="himenopteros" />} />
+        <Route path="/t/helicopteros" element={<Navigate to="/t/himenopteros" replace />} />
         <Route path="/t/otros" element={<GenericIncidentPage incidentKey="otros" />} />
         <Route path="/esp" element={<EspectadorPage />} />
         <Route path="/historial" element={<HistorialPage />} />

@@ -11,7 +11,7 @@ const pathFor: Record<IncidentKey, string> = {
   rescate: "/t/rescate",
   acceso_vivienda: "/t/acceso-vivienda",
   fachadas: "/t/fachadas",
-  helicopteros: "/t/helicopteros",
+  himenopteros: "/t/himenopteros",
   otros: "/t/otros",
 };
 
