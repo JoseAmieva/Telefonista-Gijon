@@ -170,10 +170,13 @@ export function GenericIncidentSpecificSections({
     );
   }
 
-  if (incidentKey === "fachadas") {
+  if (incidentKey === "fachadas" || incidentKey === "acceso_vivienda") {
+    const sectionTitle = incidentKey === "fachadas" ? "Fachadas y accesos" : "Acceso a vivienda";
+    const incluirMotivoLlamada = incidentKey === "acceso_vivienda";
+
     return (
       <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm space-y-5">
-        <SectionTitle>Fachadas y accesos</SectionTitle>
+        <SectionTitle>{sectionTitle}</SectionTitle>
 
         <RadioYesNo
           name="fa_policia_local"
@@ -234,28 +237,34 @@ export function GenericIncidentSpecificSections({
           />
         </div>
 
-        <RadioList
-          name="fa_motivo_llamada"
-          label="¿Por qué llama?"
-          value={form.fa_motivo_llamada}
-          onChange={(v) => setForm((f) => ({ ...f, fa_motivo_llamada: v as GenericExtendedFormState["fa_motivo_llamada"] }))}
-          options={[
-            { value: "sin_noticias", label: "Hace tiempo que no tiene noticias" },
-            { value: "socorro", label: "Pide socorro" },
-            { value: "otro", label: "Otro motivo" },
-          ]}
-        />
-
-        {form.fa_motivo_llamada === "otro" && (
-          <div>
-            <Label htmlFor="fa_motivo_otro_desc">Especificar motivo</Label>
-            <textarea
-              id="fa_motivo_otro_desc"
-              className="mt-1 w-full min-h-[72px] rounded-lg border border-slate-300 px-3 py-2 text-sm"
-              value={form.fa_motivo_otro_desc}
-              onChange={(e) => setForm((f) => ({ ...f, fa_motivo_otro_desc: e.target.value }))}
+        {incluirMotivoLlamada && (
+          <>
+            <RadioList
+              name="fa_motivo_llamada"
+              label="¿Por qué llama?"
+              value={form.fa_motivo_llamada}
+              onChange={(v) =>
+                setForm((f) => ({ ...f, fa_motivo_llamada: v as GenericExtendedFormState["fa_motivo_llamada"] }))
+              }
+              options={[
+                { value: "sin_noticias", label: "Hace tiempo que no tiene noticias" },
+                { value: "socorro", label: "Pide socorro" },
+                { value: "otro", label: "Otro motivo" },
+              ]}
             />
-          </div>
+
+            {form.fa_motivo_llamada === "otro" && (
+              <div>
+                <Label htmlFor="fa_motivo_otro_desc">Especificar motivo</Label>
+                <textarea
+                  id="fa_motivo_otro_desc"
+                  className="mt-1 w-full min-h-[72px] rounded-lg border border-slate-300 px-3 py-2 text-sm"
+                  value={form.fa_motivo_otro_desc}
+                  onChange={(e) => setForm((f) => ({ ...f, fa_motivo_otro_desc: e.target.value }))}
+                />
+              </div>
+            )}
+          </>
         )}
       </section>
     );

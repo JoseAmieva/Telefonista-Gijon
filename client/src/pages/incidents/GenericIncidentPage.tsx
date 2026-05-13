@@ -12,7 +12,7 @@ import type { SharedRootFieldsState } from "../../incidents/sharedBasics";
 import { mergeGenericExtendedFromPayload } from "../../incidents/genericExtendedForm";
 import { buildMapsQueryFromUbicacion, buildMapsUrlFromPayload } from "../../incidents/maps";
 
-const HAS_EXTRA_SECTION = new Set<IncidentKey>(["accidente_trafico", "rescate", "fachadas"]);
+const HAS_EXTRA_SECTION = new Set<IncidentKey>(["accidente_trafico", "rescate", "fachadas", "acceso_vivienda"]);
 
 export default function GenericIncidentPage({ incidentKey }: { incidentKey: IncidentKey }) {
   const loc = useLocation();

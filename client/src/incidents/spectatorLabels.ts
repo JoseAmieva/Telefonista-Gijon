@@ -127,7 +127,8 @@ function appendAquaticSpectator(payload: Record<string, unknown>): { lines: { la
   return { lines, usedKeys };
 }
 
-function appendFachadasSpectator(payload: Record<string, unknown>): { lines: { label: string; value: string }[]; usedKeys: Set<string> } {
+/** Bloque común fachadas / acceso a vivienda (sin motivo de llamada). */
+function appendFachadasCoreSpectator(payload: Record<string, unknown>): { lines: { label: string; value: string }[]; usedKeys: Set<string> } {
   const lines: { label: string; value: string }[] = [];
   const usedKeys = new Set<string>();
   const pol = payload.fa_policia_local;
@@ -160,6 +161,17 @@ function appendFachadasSpectator(payload: Record<string, unknown>): { lines: { l
     lines.push({ label: "¿Quién llama?", value: quien });
     usedKeys.add("fa_quien_llama");
   }
+  return { lines, usedKeys };
+}
+
+function appendFachadasSpectator(payload: Record<string, unknown>): { lines: { label: string; value: string }[]; usedKeys: Set<string> } {
+  const { lines, usedKeys } = appendFachadasCoreSpectator(payload);
+  markPrefixKeys(payload, "fa_", usedKeys);
+  return { lines, usedKeys };
+}
+
+function appendAccesoViviendaSpectator(payload: Record<string, unknown>): { lines: { label: string; value: string }[]; usedKeys: Set<string> } {
+  const { lines, usedKeys } = appendFachadasCoreSpectator(payload);
   const mot = payload.fa_motivo_llamada;
   if (mot === "sin_noticias" || mot === "socorro" || mot === "otro") {
     lines.push({ label: "Motivo de la llamada", value: fmtFachadasMotivo(String(mot)) });
@@ -181,6 +193,7 @@ export function appendIncidentSpecificDisplayLines(
   if (incidentKey === "accidente_trafico") return appendTrafficSpectator(payload);
   if (incidentKey === "rescate") return appendAquaticSpectator(payload);
   if (incidentKey === "fachadas") return appendFachadasSpectator(payload);
+  if (incidentKey === "acceso_vivienda") return appendAccesoViviendaSpectator(payload);
   return { lines: [], usedKeys: new Set<string>() };
 }
 
