@@ -14,7 +14,7 @@ function allPayloadDisplayLines(
   if (incidentKey === "incendio_estructural") {
     return structuralPayloadToDisplayLines(payload);
   }
-  return genericIncidentDisplayLines(payload);
+  return genericIncidentDisplayLines(incidentKey, payload);
 }
 
 export default function EspectadorPage() {

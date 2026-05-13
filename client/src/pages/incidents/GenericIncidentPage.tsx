@@ -6,16 +6,20 @@ import { INCIDENT_LABEL, type IncidentKey } from "../../incidents/types";
 import { apiSaveCall } from "../../api";
 import { ContactosTelefono } from "../../components/ContactosTelefono";
 import { UbicacionFields } from "../../components/UbicacionFields";
+import { GenericIncidentSpecificSections } from "../../components/GenericIncidentSpecificSections";
+import type { GenericExtendedFormState } from "../../incidents/genericExtendedForm";
 import type { SharedRootFieldsState } from "../../incidents/sharedBasics";
-import { mergeSharedRootFromPayload } from "../../incidents/mergeSharedRootFromPayload";
+import { mergeGenericExtendedFromPayload } from "../../incidents/genericExtendedForm";
 import { buildMapsQueryFromUbicacion, buildMapsUrlFromPayload } from "../../incidents/maps";
+
+const HAS_EXTRA_SECTION = new Set<IncidentKey>(["accidente_trafico", "rescate", "fachadas"]);
 
 export default function GenericIncidentPage({ incidentKey }: { incidentKey: IncidentKey }) {
   const loc = useLocation();
   const callTime = (loc.state as { callTime?: string } | null)?.callTime ?? new Date().toISOString();
   const nav = useNavigate();
   const { publishDraft, clearDraft } = useAuthDraft();
-  const [form, setForm] = useState<SharedRootFieldsState>(() => mergeSharedRootFromPayload({}));
+  const [form, setForm] = useState<GenericExtendedFormState>(() => mergeGenericExtendedFromPayload({}));
   const [savedId, setSavedId] = useState<string | undefined>();
   const [msg, setMsg] = useState<string | null>(null);
   const debounce = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -53,8 +57,10 @@ export default function GenericIncidentPage({ incidentKey }: { incidentKey: Inci
       payload: clean,
     });
     setSavedId(rec.id);
-    setMsg("Guardado. Los campos específicos de este siniestro se irán ampliando en versiones posteriores.");
+    setMsg("Guardado en historial.");
   }
+
+  const showBaseNotice = !HAS_EXTRA_SECTION.has(incidentKey);
 
   return (
     <div className="min-h-screen p-6 max-w-2xl mx-auto pb-24">
@@ -81,9 +87,11 @@ export default function GenericIncidentPage({ incidentKey }: { incidentKey: Inci
           </Btn>
         </div>
       </div>
-      <div className="rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-950 mb-6">
-        Formulario base común a todos los siniestros. El detalle específico de este tipo se irá ampliando.
-      </div>
+      {showBaseNotice && (
+        <div className="rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-950 mb-6">
+          Formulario base común a todos los siniestros. El detalle específico de este tipo se irá ampliando.
+        </div>
+      )}
       {msg && <p className="text-sm text-emerald-800 mb-4">{msg}</p>}
 
       <div className="space-y-8">
@@ -111,6 +119,8 @@ export default function GenericIncidentPage({ incidentKey }: { incidentKey: Inci
             </div>
           )}
         </section>
+
+        <GenericIncidentSpecificSections incidentKey={incidentKey} form={form} setForm={setForm} />
 
         <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm space-y-3">
           <SectionTitle>Observaciones</SectionTitle>

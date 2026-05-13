@@ -5,19 +5,24 @@ import type { CallRecord } from "../api";
 import { Btn, Label, SectionTitle } from "../components/ui";
 import { ContactosTelefono } from "../components/ContactosTelefono";
 import { UbicacionFields } from "../components/UbicacionFields";
+import { GenericIncidentSpecificSections } from "../components/GenericIncidentSpecificSections";
 import { INCIDENT_LABEL } from "../incidents/types";
 import type { IncidentKey } from "../incidents/types";
 import { IncendioEstructuralEditor } from "./incidents/IncendioEstructuralPage";
 import { mergeStructuralInitial } from "../incidents/mergeStructuralInitial";
-import { mergeSharedRootFromPayload } from "../incidents/mergeSharedRootFromPayload";
-import type { SharedRootFieldsState } from "../incidents/sharedBasics";
 import type { StructuralFormState } from "../incidents/structuralTypes";
+import type { SharedRootFieldsState } from "../incidents/sharedBasics";
+import type { GenericExtendedFormState } from "../incidents/genericExtendedForm";
+import { mergeGenericExtendedFromPayload } from "../incidents/genericExtendedForm";
 import { buildMapsQueryFromUbicacion, buildMapsUrlFromPayload } from "../incidents/maps";
 
 function GenericHistorialEditor({ call }: { call: CallRecord }) {
-  const [form, setForm] = useState<SharedRootFieldsState>(() => mergeSharedRootFromPayload(call.payload as Record<string, unknown>));
+  const [form, setForm] = useState<GenericExtendedFormState>(() =>
+    mergeGenericExtendedFromPayload(call.payload as Record<string, unknown>)
+  );
   const [msg, setMsg] = useState<string | null>(null);
 
+  const key = call.incidentKey as IncidentKey;
   const mapsUrl = buildMapsUrlFromPayload({ ...(call.payload as Record<string, unknown>), ...form });
 
   function patch<K extends keyof SharedRootFieldsState>(k: K, v: SharedRootFieldsState[K]) {
@@ -69,6 +74,8 @@ function GenericHistorialEditor({ call }: { call: CallRecord }) {
           </div>
         )}
       </section>
+
+      <GenericIncidentSpecificSections incidentKey={key} form={form} setForm={setForm} />
 
       <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm space-y-3">
         <SectionTitle>Observaciones</SectionTitle>

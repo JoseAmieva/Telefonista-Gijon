@@ -14,7 +14,7 @@ export const INCIDENT_LABEL: Record<IncidentKey, string> = {
   incendio_forestal: "Incendio forestal",
   incendio_vehiculo: "Incendio en vehículo",
   accidente_trafico: "Accidente de tráfico",
-  rescate: "Rescate",
+  rescate: "Rescate acuático",
   acceso_vivienda: "Acceso a vivienda",
   fachadas: "Fachadas",
   himenopteros: "Himenópteros",
