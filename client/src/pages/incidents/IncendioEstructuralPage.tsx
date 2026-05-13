@@ -1,11 +1,14 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuthDraft } from "../../context/AuthDraftContext";
-import { Btn, FieldGrid, Label, RadioList, RadioYesNo, SectionTitle, TipBox } from "../../components/ui";
+import { Btn, Label, RadioList, RadioYesNo, SectionTitle, TipBox } from "../../components/ui";
 import { CHULETA_AUTOPROTECCION_QUEDARSE, CHULETA_AUTOPROTECCION_SALIR } from "../../incidents/tips";
-import { buildMapsUrlFromStructural } from "../../incidents/maps";
-import { emptyStructuralForm, type StructuralFormState } from "../../incidents/structuralTypes";
+import { buildMapsUrlFromStructural, buildMapsQueryFromStructural } from "../../incidents/maps";
+import { mergeStructuralInitial } from "../../incidents/mergeStructuralInitial";
+import type { StructuralFormState } from "../../incidents/structuralTypes";
 import { apiSaveCall } from "../../api";
+import { ContactosTelefono } from "../../components/ContactosTelefono";
+import { UbicacionFields } from "../../components/UbicacionFields";
 
 type Props = {
   callTime: string;
@@ -26,7 +29,7 @@ export function IncendioEstructuralEditor({ callTime, savedCallId, initial }: Pr
 function StructuralForm({ callTime, savedCallId, initial }: Props) {
   const nav = useNavigate();
   const { publishDraft, clearDraft } = useAuthDraft();
-  const [form, setForm] = useState<StructuralFormState>(() => ({ ...emptyStructuralForm(), ...initial }));
+  const [form, setForm] = useState<StructuralFormState>(() => mergeStructuralInitial(initial));
   const [savedId, setSavedId] = useState<string | undefined>(savedCallId);
   const [msg, setMsg] = useState<string | null>(null);
   const debounce = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -93,117 +96,26 @@ function StructuralForm({ callTime, savedCallId, initial }: Props) {
       {msg && <p className="text-sm text-emerald-800 mb-4">{msg}</p>}
 
       <div className="space-y-10">
-        <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+        <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm space-y-4">
           <SectionTitle>Datos generales</SectionTitle>
-          <FieldGrid>
-            <div className="sm:col-span-2">
-              <Label>Teléfono del alertante</Label>
-              <input
-                className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"
-                value={form.telefono_alertante}
-                onChange={(e) => patch("telefono_alertante", e.target.value)}
-                inputMode="tel"
-              />
-            </div>
-          </FieldGrid>
+          <ContactosTelefono contactos={form.contactos} onChange={(c) => patch("contactos", c)} />
+          <div>
+            <Label>Observaciones (cualquier detalle útil)</Label>
+            <textarea
+              className="w-full min-h-[96px] rounded-lg border border-slate-300 px-3 py-2 text-sm"
+              value={form.observaciones}
+              onChange={(e) => patch("observaciones", e.target.value)}
+              placeholder="Texto libre visible también en modo espectador."
+            />
+          </div>
         </section>
 
         <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
           <SectionTitle>Ubicación (Gijón)</SectionTitle>
-          <RadioList
-            name="zona"
-            label="Zona"
-            value={form.ubicacion_zona}
-            onChange={(v: string) => patch("ubicacion_zona", v as StructuralFormState["ubicacion_zona"])}
-            options={[
-              { value: "urbana", label: "Zona urbana" },
-              { value: "rural", label: "Zona rural" },
-            ]}
+          <UbicacionFields
+            form={form}
+            patch={(k, v) => patch(k as keyof StructuralFormState, v as StructuralFormState[keyof StructuralFormState])}
           />
-          {form.ubicacion_zona === "urbana" && (
-            <div className="mt-4 space-y-3">
-              <FieldGrid>
-                <div>
-                  <Label>Calle</Label>
-                  <input
-                    className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"
-                    value={form.urb_calle}
-                    onChange={(e) => patch("urb_calle", e.target.value)}
-                  />
-                </div>
-                <div>
-                  <Label>Portal</Label>
-                  <input
-                    className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"
-                    value={form.urb_portal}
-                    onChange={(e) => patch("urb_portal", e.target.value)}
-                  />
-                </div>
-                <div>
-                  <Label>Piso</Label>
-                  <input
-                    className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"
-                    value={form.urb_piso}
-                    onChange={(e) => patch("urb_piso", e.target.value)}
-                  />
-                </div>
-                <div>
-                  <Label>Puerta</Label>
-                  <input
-                    className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"
-                    value={form.urb_puerta}
-                    onChange={(e) => patch("urb_puerta", e.target.value)}
-                  />
-                </div>
-                <div>
-                  <Label>Barrio</Label>
-                  <input
-                    className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"
-                    value={form.urb_barrio}
-                    onChange={(e) => patch("urb_barrio", e.target.value)}
-                  />
-                </div>
-                <div>
-                  <Label>Calle aneja</Label>
-                  <input
-                    className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"
-                    value={form.urb_calle_aneja}
-                    onChange={(e) => patch("urb_calle_aneja", e.target.value)}
-                  />
-                </div>
-              </FieldGrid>
-            </div>
-          )}
-          {form.ubicacion_zona === "rural" && (
-            <div className="mt-4 space-y-3">
-              <FieldGrid>
-                <div className="sm:col-span-2">
-                  <Label>Nombre de vía</Label>
-                  <input
-                    className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"
-                    value={form.rur_via}
-                    onChange={(e) => patch("rur_via", e.target.value)}
-                  />
-                </div>
-                <div>
-                  <Label>Parroquia</Label>
-                  <input
-                    className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"
-                    value={form.rur_parroquia}
-                    onChange={(e) => patch("rur_parroquia", e.target.value)}
-                  />
-                </div>
-                <div>
-                  <Label>Vía aneja</Label>
-                  <input
-                    className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"
-                    value={form.rur_via_aneja}
-                    onChange={(e) => patch("rur_via_aneja", e.target.value)}
-                  />
-                </div>
-              </FieldGrid>
-            </div>
-          )}
           {mapsUrl && (
             <div className="mt-4">
               <a
@@ -214,7 +126,10 @@ function StructuralForm({ callTime, savedCallId, initial }: Props) {
               >
                 Abrir dirección en Google Maps
               </a>
-              <p className="text-xs text-slate-500 mt-2">La búsqueda se contextualiza siempre en Gijón, Asturias.</p>
+              <p className="text-xs text-slate-500 mt-2">
+                La búsqueda se contextualiza siempre en Gijón, Asturias. Texto enviado:{" "}
+                {buildMapsQueryFromStructural(form) ?? "(complete dirección)"}
+              </p>
             </div>
           )}
         </section>

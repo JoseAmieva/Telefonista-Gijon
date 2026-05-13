@@ -2,47 +2,84 @@ import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { apiGetCall, apiSaveCall } from "../api";
 import type { CallRecord } from "../api";
-import { Btn } from "../components/ui";
+import { Btn, Label, SectionTitle } from "../components/ui";
+import { ContactosTelefono } from "../components/ContactosTelefono";
+import { UbicacionFields } from "../components/UbicacionFields";
 import { INCIDENT_LABEL } from "../incidents/types";
 import type { IncidentKey } from "../incidents/types";
 import { IncendioEstructuralEditor } from "./incidents/IncendioEstructuralPage";
-import { emptyStructuralForm, type StructuralFormState } from "../incidents/structuralTypes";
+import { mergeStructuralInitial } from "../incidents/mergeStructuralInitial";
+import { mergeSharedRootFromPayload } from "../incidents/mergeSharedRootFromPayload";
+import type { SharedRootFieldsState } from "../incidents/sharedBasics";
+import type { StructuralFormState } from "../incidents/structuralTypes";
+import { buildMapsQueryFromUbicacion, buildMapsUrlFromPayload } from "../incidents/maps";
 
 function GenericHistorialEditor({ call }: { call: CallRecord }) {
-  const [telefono, setTelefono] = useState(String(call.payload.telefono_alertante ?? ""));
-  const [notas, setNotas] = useState(String(call.payload.notas ?? ""));
+  const [form, setForm] = useState<SharedRootFieldsState>(() => mergeSharedRootFromPayload(call.payload as Record<string, unknown>));
   const [msg, setMsg] = useState<string | null>(null);
+
+  const mapsUrl = buildMapsUrlFromPayload({ ...(call.payload as Record<string, unknown>), ...form });
+
+  function patch<K extends keyof SharedRootFieldsState>(k: K, v: SharedRootFieldsState[K]) {
+    setForm((f) => ({ ...f, [k]: v }));
+  }
 
   async function save() {
     setMsg(null);
+    const base = { ...(call.payload as Record<string, unknown>) };
+    delete base.telefono_alertante;
+    delete base.notas;
     await apiSaveCall({
       id: call.id,
       incidentKey: call.incidentKey,
       callTime: call.callTime,
-      payload: { ...call.payload, telefono_alertante: telefono, notas },
+      payload: { ...base, ...(form as Record<string, unknown>) },
     });
     setMsg("Actualizado.");
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-8">
       {msg && <p className="text-sm text-emerald-800">{msg}</p>}
-      <div>
-        <label className="block text-sm font-medium text-slate-700 mb-1">Teléfono</label>
-        <input
-          className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"
-          value={telefono}
-          onChange={(e) => setTelefono(e.target.value)}
+
+      <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm space-y-4">
+        <SectionTitle>Teléfonos y roles</SectionTitle>
+        <ContactosTelefono contactos={form.contactos} onChange={(c) => patch("contactos", c)} />
+      </section>
+
+      <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm space-y-4">
+        <SectionTitle>Ubicación (Gijón)</SectionTitle>
+        <UbicacionFields
+          form={form}
+          patch={(k, v) => patch(k as keyof SharedRootFieldsState, v as SharedRootFieldsState[keyof SharedRootFieldsState])}
         />
-      </div>
-      <div>
-        <label className="block text-sm font-medium text-slate-700 mb-1">Notas</label>
+        {mapsUrl && (
+          <div className="mt-2">
+            <a
+              href={mapsUrl}
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex rounded-lg bg-slate-900 text-white px-4 py-2 text-sm font-medium hover:bg-slate-800"
+            >
+              Abrir en Google Maps
+            </a>
+            <p className="text-xs text-slate-500 mt-2">
+              Texto de búsqueda: {buildMapsQueryFromUbicacion(form) ?? "(complete dirección)"}
+            </p>
+          </div>
+        )}
+      </section>
+
+      <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm space-y-3">
+        <SectionTitle>Observaciones</SectionTitle>
+        <Label>Texto libre (visible en modo espectador)</Label>
         <textarea
-          className="w-full min-h-[120px] rounded-lg border border-slate-300 px-3 py-2 text-sm"
-          value={notas}
-          onChange={(e) => setNotas(e.target.value)}
+          className="w-full min-h-[140px] rounded-lg border border-slate-300 px-3 py-2 text-sm"
+          value={form.observaciones}
+          onChange={(e) => patch("observaciones", e.target.value)}
         />
-      </div>
+      </section>
+
       <Btn onClick={save}>Guardar cambios</Btn>
     </div>
   );
@@ -82,10 +119,7 @@ export default function HistorialDetallePage() {
   const key = call.incidentKey as IncidentKey;
 
   if (key === "incendio_estructural") {
-    const merged: StructuralFormState = {
-      ...emptyStructuralForm(),
-      ...(call.payload as StructuralFormState),
-    };
+    const merged = mergeStructuralInitial(call.payload as Partial<StructuralFormState>);
     return (
       <div className="p-6 max-w-3xl mx-auto">
         <div className="flex justify-between gap-3 mb-4">

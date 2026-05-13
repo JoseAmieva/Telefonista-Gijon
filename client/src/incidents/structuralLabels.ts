@@ -1,48 +1,50 @@
-/** Orden y etiquetas para modo espectador e informes legibles */
+import { appendContactosLines } from "./spectatorLabels";
+
+/** Orden y etiquetas para modo espectador (sin guiones largos) */
 export const STRUCTURAL_FIELD_ORDER: { key: string; label: string }[] = [
-  { key: "telefono_alertante", label: "Teléfono del alertante" },
-  { key: "ubicacion_zona", label: "Ubicación — zona" },
-  { key: "urb_calle", label: "Urbana — calle" },
-  { key: "urb_portal", label: "Urbana — portal" },
-  { key: "urb_piso", label: "Urbana — piso" },
-  { key: "urb_puerta", label: "Urbana — puerta" },
-  { key: "urb_barrio", label: "Urbana — barrio" },
-  { key: "urb_calle_aneja", label: "Urbana — calle aneja" },
-  { key: "rur_via", label: "Rural — nombre de vía" },
-  { key: "rur_parroquia", label: "Rural — parroquia" },
-  { key: "rur_via_aneja", label: "Rural — vía aneja" },
-  { key: "tipo_estructura", label: "Tipo de estructura" },
-  { key: "tipo_estructura_otros", label: "Tipo de estructura (otros — texto)" },
+  { key: "ubicacion_zona", label: "Zona de ubicación" },
+  { key: "urb_calle", label: "Calle (urbana)" },
+  { key: "urb_portal", label: "Portal" },
+  { key: "urb_piso", label: "Piso" },
+  { key: "urb_puerta", label: "Puerta" },
+  { key: "urb_barrio", label: "Barrio" },
+  { key: "urb_calle_aneja", label: "Calle aneja" },
+  { key: "rur_via", label: "Nombre de vía (rural)" },
+  { key: "rur_parroquia", label: "Parroquia" },
+  { key: "rur_via_aneja", label: "Vía aneja" },
+  { key: "observaciones", label: "Observaciones" },
+  { key: "tipo_estructura", label: "Tipo de estructura incendiada" },
+  { key: "tipo_estructura_otros", label: "Tipo de estructura (texto si es otros)" },
   { key: "identificacion_alertante", label: "Identificación del alertante" },
-  { key: "oc_humo_o_llama", label: "Ocupante — humo o llama" },
-  { key: "oc_origen", label: "Ocupante — origen / qué arde" },
-  { key: "oc_descripcion", label: "Ocupante — descripción del problema" },
-  { key: "oc_mas_ocupantes", label: "Ocupante — más ocupantes en la vivienda" },
-  { key: "oc_num_ocupantes", label: "Ocupante — número de ocupantes" },
-  { key: "oc_pueden_salir", label: "Ocupante — pueden abandonar la vivienda" },
-  { key: "oc_cuantos_no_pueden", label: "Ocupante — cuántos no pueden salir" },
-  { key: "oc_motivo_no_salir", label: "Ocupante — motivo (atrapamiento / movilidad)" },
-  { key: "oc_puerta_abierta", label: "Ocupante — puerta de la vivienda abierta" },
-  { key: "oc_puerta_detalle", label: "Ocupante — detalle puerta (llaves, vueltas…)" },
-  { key: "oc_ventanas_otra_fachada", label: "Ocupante — ventanas a otra fachada que el portal" },
-  { key: "oc_ventanas_otra_calle", label: "Ocupante — nombre de calle (otra fachada)" },
-  { key: "oc_ventanas_solo_patio", label: "Ocupante — ventanas solo a patio interior" },
-  { key: "vm_donde", label: "Vecino mismo edificio — dónde se encuentra" },
-  { key: "vm_humo_llama", label: "Vecino mismo — humo o llama" },
-  { key: "vm_origen", label: "Vecino mismo — origen humo/llamas" },
-  { key: "vm_origen_ventana_portal", label: "Vecino mismo — ventana da a calle del portal" },
-  { key: "vm_ventana_calle", label: "Vecino mismo — calle si la ventana no da al portal" },
-  { key: "vm_origen_puerta_picar", label: "Vecino mismo — puerta: probado a picar" },
-  { key: "vm_oyen_gente", label: "Vecino mismo — oyen gente dentro" },
-  { key: "vm_humo_fuera", label: "Vecino mismo — humo/llamas fuera (patio/rellano)" },
-  { key: "vm_humo_denso_color", label: "Vecino mismo — humo denso/leve y color" },
-  { key: "vm_descripcion", label: "Vecino mismo — descripción" },
-  { key: "vo_donde", label: "Vecino otro / transeúnte — dónde se encuentra" },
-  { key: "vo_distancia", label: "Vecino otro — distancia al incendio" },
-  { key: "vo_humo_llama", label: "Vecino otro — humo o llama" },
-  { key: "vo_origen", label: "Vecino otro — origen" },
-  { key: "vo_cantidad_humo", label: "Vecino otro — cantidad y color del humo" },
-  { key: "vo_descripcion", label: "Vecino otro — descripción" },
+  { key: "oc_humo_o_llama", label: "Ocupante: humo o llama" },
+  { key: "oc_origen", label: "Ocupante: de dónde proviene o qué arde" },
+  { key: "oc_descripcion", label: "Ocupante: descripción del problema" },
+  { key: "oc_mas_ocupantes", label: "Ocupante: hay más ocupantes en la vivienda" },
+  { key: "oc_num_ocupantes", label: "Ocupante: número de ocupantes" },
+  { key: "oc_pueden_salir", label: "Ocupante: pueden abandonar la vivienda solos" },
+  { key: "oc_cuantos_no_pueden", label: "Ocupante: cuántos no pueden salir" },
+  { key: "oc_motivo_no_salir", label: "Ocupante: motivo por el que no pueden salir" },
+  { key: "oc_puerta_abierta", label: "Ocupante: puerta de la vivienda abierta" },
+  { key: "oc_puerta_detalle", label: "Ocupante: detalle de la puerta (llaves, vueltas…)" },
+  { key: "oc_ventanas_otra_fachada", label: "Ocupante: ventanas a otra fachada distinta del portal" },
+  { key: "oc_ventanas_otra_calle", label: "Ocupante: nombre de calle de la otra fachada" },
+  { key: "oc_ventanas_solo_patio", label: "Ocupante: ventanas solo a patio interior" },
+  { key: "vm_donde", label: "Vecino mismo edificio: dónde se encuentra" },
+  { key: "vm_humo_llama", label: "Vecino mismo edificio: humo o llama" },
+  { key: "vm_origen", label: "Vecino mismo edificio: origen del humo o las llamas" },
+  { key: "vm_origen_ventana_portal", label: "Vecino mismo edificio: la ventana da a la calle del portal" },
+  { key: "vm_ventana_calle", label: "Vecino mismo edificio: calle a la que da la ventana" },
+  { key: "vm_origen_puerta_picar", label: "Vecino mismo edificio: en puerta, probado a picar" },
+  { key: "vm_oyen_gente", label: "Vecino mismo edificio: oyen gente dentro" },
+  { key: "vm_humo_fuera", label: "Vecino mismo edificio: humo o llamas fuera de la vivienda" },
+  { key: "vm_humo_denso_color", label: "Vecino mismo edificio: humo (denso o leve) y color" },
+  { key: "vm_descripcion", label: "Vecino mismo edificio: descripción" },
+  { key: "vo_donde", label: "Vecino otro o transeúnte: dónde se encuentra" },
+  { key: "vo_distancia", label: "Vecino otro o transeúnte: distancia al incendio" },
+  { key: "vo_humo_llama", label: "Vecino otro o transeúnte: humo o llama" },
+  { key: "vo_origen", label: "Vecino otro o transeúnte: origen" },
+  { key: "vo_cantidad_humo", label: "Vecino otro o transeúnte: cantidad y color del humo" },
+  { key: "vo_descripcion", label: "Vecino otro o transeúnte: descripción" },
 ];
 
 const LABEL_BY_KEY = Object.fromEntries(STRUCTURAL_FIELD_ORDER.map((x) => [x.key, x.label])) as Record<
@@ -56,7 +58,7 @@ function fmtSiNo(v: string): string {
   return v;
 }
 
-function fmtValue(key: string, raw: string): string {
+export function fmtValue(key: string, raw: string): string {
   switch (key) {
     case "ubicacion_zona":
       return raw === "urbana" ? "Urbana" : raw === "rural" ? "Rural" : raw;
@@ -126,8 +128,9 @@ function fmtValue(key: string, raw: string): string {
 }
 
 export function structuralPayloadToDisplayLines(payload: Record<string, unknown>): { label: string; value: string }[] {
-  const out: { label: string; value: string }[] = [];
-  const used = new Set<string>();
+  const { lines: contactLines, usedKeys } = appendContactosLines(payload);
+  const out: { label: string; value: string }[] = [...contactLines];
+  const used = new Set<string>(usedKeys);
 
   for (const { key, label } of STRUCTURAL_FIELD_ORDER) {
     const raw = payload[key];
@@ -143,7 +146,13 @@ export function structuralPayloadToDisplayLines(payload: Record<string, unknown>
     if (used.has(key)) continue;
     if (val === undefined || val === null || val === "") continue;
     if (typeof val === "object") continue;
-    out.push({ label: LABEL_BY_KEY[key] ?? key, value: String(val) });
+    const friendly =
+      key === "telefono_alertante"
+        ? "Teléfono (registro anterior)"
+        : key === "notas"
+          ? "Notas (registro anterior)"
+          : LABEL_BY_KEY[key] ?? key.replace(/_/g, " ");
+    out.push({ label: friendly, value: String(val) });
   }
 
   return out;

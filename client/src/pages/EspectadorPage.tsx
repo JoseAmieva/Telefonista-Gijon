@@ -3,19 +3,9 @@ import { INCIDENT_LABEL, INCIDENT_SPECTATOR_BG } from "../incidents/types";
 import type { IncidentKey } from "../incidents/types";
 import { useAuthDraft } from "../context/AuthDraftContext";
 import { Btn } from "../components/ui";
-import { buildMapsUrlFromStructural, buildMapsQueryFromStructural } from "../incidents/maps";
-import type { StructuralFormState } from "../incidents/structuralTypes";
-import { emptyStructuralForm } from "../incidents/structuralTypes";
+import { buildMapsUrlFromPayload } from "../incidents/maps";
 import { structuralPayloadToDisplayLines } from "../incidents/structuralLabels";
-
-function payloadToStructural(p: Record<string, unknown>): StructuralFormState {
-  const e = emptyStructuralForm();
-  return { ...e, ...(p as StructuralFormState) };
-}
-
-function humanizeKey(k: string): string {
-  return k.replace(/_/g, " ");
-}
+import { genericIncidentDisplayLines, mapsQueryFromAnyPayload } from "../incidents/spectatorLabels";
 
 function allPayloadDisplayLines(
   incidentKey: IncidentKey | null,
@@ -24,25 +14,15 @@ function allPayloadDisplayLines(
   if (incidentKey === "incendio_estructural") {
     return structuralPayloadToDisplayLines(payload);
   }
-  const skip = new Set(["_raw", "_formVersion"]);
-  const lines: { label: string; value: string }[] = [];
-  for (const [k, val] of Object.entries(payload)) {
-    if (skip.has(k)) continue;
-    if (val === undefined || val === null || val === "") continue;
-    if (typeof val === "object") continue;
-    lines.push({ label: humanizeKey(k), value: String(val) });
-  }
-  return lines;
+  return genericIncidentDisplayLines(payload);
 }
 
 export default function EspectadorPage() {
   const { draft } = useAuthDraft();
   const key = draft.incidentKey;
   const bg = key ? INCIDENT_SPECTATOR_BG[key] : "bg-white border-slate-200";
-  const mapsUrl =
-    key === "incendio_estructural"
-      ? buildMapsUrlFromStructural(payloadToStructural(draft.payload))
-      : null;
+  const mapsUrl = key ? buildMapsUrlFromPayload(draft.payload) : null;
+  const mapsQuery = key ? mapsQueryFromAnyPayload(draft.payload) : null;
 
   const lines = allPayloadDisplayLines(key, draft.payload);
 
@@ -61,7 +41,7 @@ export default function EspectadorPage() {
         <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
           <div>
             <p className="text-xs uppercase text-slate-600 font-semibold">Siniestro</p>
-            <p className="text-lg font-semibold text-slate-900">{key ? INCIDENT_LABEL[key] : "—"}</p>
+            <p className="text-lg font-semibold text-slate-900">{key ? INCIDENT_LABEL[key] : "Sin seleccionar"}</p>
           </div>
           {draft.callTime && (
             <div className="text-right">
@@ -82,9 +62,9 @@ export default function EspectadorPage() {
             >
               Abrir en Google Maps
             </a>
-            <p className="text-xs text-slate-600 mt-2">
-              Búsqueda contextualizada en {buildMapsQueryFromStructural(payloadToStructural(draft.payload))}
-            </p>
+            {mapsQuery && (
+              <p className="text-xs text-slate-600 mt-2">Búsqueda contextualizada en {mapsQuery}</p>
+            )}
           </div>
         )}
         <div className="space-y-2 divide-y divide-slate-200/70">

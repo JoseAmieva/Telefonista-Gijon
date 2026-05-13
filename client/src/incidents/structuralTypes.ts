@@ -1,4 +1,7 @@
-export type ZonaUbicacion = "urbana" | "rural" | "";
+import type { SharedRootFieldsState } from "./sharedBasics";
+import { emptySharedRoot } from "./sharedBasics";
+
+export type { ZonaUbicacion } from "./sharedBasics";
 
 export type TipoEstructura = "piso" | "unifamiliar" | "local" | "nave" | "garaje" | "otros" | "";
 
@@ -10,17 +13,7 @@ export type IdentificacionAlertante =
   | "";
 
 export const emptyStructuralForm = (): StructuralFormState => ({
-  telefono_alertante: "",
-  ubicacion_zona: "",
-  urb_calle: "",
-  urb_portal: "",
-  urb_piso: "",
-  urb_puerta: "",
-  urb_barrio: "",
-  urb_calle_aneja: "",
-  rur_via: "",
-  rur_parroquia: "",
-  rur_via_aneja: "",
+  ...emptySharedRoot(),
   tipo_estructura: "",
   tipo_estructura_otros: "",
   identificacion_alertante: "",
@@ -58,18 +51,7 @@ export const emptyStructuralForm = (): StructuralFormState => ({
   vo_descripcion: "",
 });
 
-export type StructuralFormState = {
-  telefono_alertante: string;
-  ubicacion_zona: ZonaUbicacion;
-  urb_calle: string;
-  urb_portal: string;
-  urb_piso: string;
-  urb_puerta: string;
-  urb_barrio: string;
-  urb_calle_aneja: string;
-  rur_via: string;
-  rur_parroquia: string;
-  rur_via_aneja: string;
+export type StructuralFormState = SharedRootFieldsState & {
   tipo_estructura: TipoEstructura;
   tipo_estructura_otros: string;
   identificacion_alertante: IdentificacionAlertante;
