@@ -66,8 +66,8 @@ export default function GenericIncidentPage({ incidentKey }: { incidentKey: Inci
     <div className="min-h-screen p-6 max-w-2xl mx-auto pb-24">
       <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
         <div>
-          <h1 className="text-2xl font-semibold text-slate-900">{INCIDENT_LABEL[incidentKey]}</h1>
-          <p className="text-sm text-slate-600 mt-1">
+          <h1 className="font-display text-2xl font-bold text-central-navy">{INCIDENT_LABEL[incidentKey]}</h1>
+          <p className="text-sm text-central-muted mt-1">
             Hora de llamada:{" "}
             <strong>{new Date(callTime).toLocaleString("es-ES", { timeZone: "Europe/Madrid" })}</strong>
           </p>
@@ -88,19 +88,19 @@ export default function GenericIncidentPage({ incidentKey }: { incidentKey: Inci
         </div>
       </div>
       {showBaseNotice && (
-        <div className="rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-950 mb-6">
+        <div className="rounded-2xl border border-central-amber/30 bg-central-amberBg p-4 text-sm text-[#6b4a12] mb-6">
           Formulario base común a todos los siniestros. El detalle específico de este tipo se irá ampliando.
         </div>
       )}
       {msg && <p className="text-sm text-emerald-800 mb-4">{msg}</p>}
 
       <div className="space-y-8">
-        <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm space-y-4">
+        <section className="rounded-2xl border border-central-border bg-white p-6 shadow-card space-y-4">
           <SectionTitle>Teléfonos y roles</SectionTitle>
           <ContactosTelefono contactos={form.contactos} onChange={(c) => patch("contactos", c)} />
         </section>
 
-        <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm space-y-4">
+        <section className="rounded-2xl border border-central-border bg-white p-6 shadow-card space-y-4">
           <SectionTitle>Ubicación (Gijón)</SectionTitle>
           <UbicacionFields form={form} patch={(k, v) => patch(k, v as SharedRootFieldsState[typeof k])} />
           <LocationLinks ubicacion={form} />

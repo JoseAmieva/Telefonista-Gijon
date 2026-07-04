@@ -66,17 +66,31 @@ export async function apiGetCall(id: string): Promise<CallRecord> {
 
 export type CatastroLookupResult = {
   refcat: string;
+  refcatCompleta?: string;
   del: string;
   mun: string;
   direccion?: string;
+  visor3dUrl?: string;
 };
 
-export async function apiCatastroLookup(calle: string, numero: string): Promise<CatastroLookupResult | null> {
-  const p = new URLSearchParams({ calle, numero });
+export async function apiCatastroLookup(
+  calle: string,
+  numero: string,
+  piso = "",
+  puerta = ""
+): Promise<CatastroLookupResult | null> {
+  const p = new URLSearchParams({ calle, numero, piso, puerta });
   const r = await fetch(`/api/catastro/lookup?${p.toString()}`, { credentials: "include" });
   if (r.status === 404) return null;
   if (!r.ok) throw new Error("No se pudo consultar el catastro");
   return r.json() as Promise<CatastroLookupResult>;
+}
+
+export async function apiCatastroWms(lat: number, lon: number): Promise<Blob> {
+  const p = new URLSearchParams({ lat: String(lat), lon: String(lon) });
+  const r = await fetch(`/api/catastro/wms?${p.toString()}`, { credentials: "include" });
+  if (!r.ok) throw new Error("WMS no disponible");
+  return r.blob();
 }
 
 export async function apiSaveCall(body: {

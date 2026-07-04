@@ -76,8 +76,8 @@ function StructuralForm({ callTime, savedCallId, initial }: Props) {
     <div className="min-h-screen p-6 max-w-3xl mx-auto pb-32">
       <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
         <div>
-          <h1 className="text-2xl font-semibold text-slate-900">Incendio estructural</h1>
-          <p className="text-sm text-slate-600 mt-1">
+          <h1 className="font-display text-2xl font-bold text-central-navy">Incendio estructural</h1>
+          <p className="text-sm text-central-muted mt-1">
             Hora de llamada:{" "}
             <strong>{new Date(callTime).toLocaleString("es-ES", { timeZone: "Europe/Madrid" })}</strong>
           </p>
@@ -95,7 +95,7 @@ function StructuralForm({ callTime, savedCallId, initial }: Props) {
       {msg && <p className="text-sm text-emerald-800 mb-4">{msg}</p>}
 
       <div className="space-y-10">
-        <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm space-y-4">
+        <section className="rounded-2xl border border-central-border bg-white p-6 shadow-card space-y-4">
           <SectionTitle>Datos generales</SectionTitle>
           <ContactosTelefono contactos={form.contactos} onChange={(c) => patch("contactos", c)} />
           <div>
@@ -109,7 +109,7 @@ function StructuralForm({ callTime, savedCallId, initial }: Props) {
           </div>
         </section>
 
-        <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+        <section className="rounded-2xl border border-central-border bg-white p-6 shadow-card">
           <SectionTitle>Ubicación (Gijón)</SectionTitle>
           <UbicacionFields
             form={form}
@@ -122,7 +122,7 @@ function StructuralForm({ callTime, savedCallId, initial }: Props) {
           </p>
         </section>
 
-        <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+        <section className="rounded-2xl border border-central-border bg-white p-6 shadow-card">
           <SectionTitle>Tipo de estructura incendiada</SectionTitle>
           <RadioList
             name="tipo_est"
@@ -150,7 +150,7 @@ function StructuralForm({ callTime, savedCallId, initial }: Props) {
           )}
         </section>
 
-        <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+        <section className="rounded-2xl border border-central-border bg-white p-6 shadow-card">
           <SectionTitle>Identificación del alertante</SectionTitle>
           <RadioList
             name="id_alert"

@@ -16,7 +16,7 @@ import {
   verifyToken,
 } from "./auth.js";
 import type { ActiveDraft, IncidentKey } from "./types.js";
-import { lookupCatastroByAddress } from "./catastro.js";
+import { lookupCatastroByAddress, fetchCatastroWmsImage } from "./catastro.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const PORT = Number(process.env.PORT) || 4000;
@@ -136,12 +136,14 @@ async function main() {
   app.get("/api/catastro/lookup", async (req, res) => {
     const calle = String(req.query.calle ?? "").trim();
     const numero = String(req.query.numero ?? "").trim();
+    const piso = String(req.query.piso ?? "").trim();
+    const puerta = String(req.query.puerta ?? "").trim();
     if (calle.length < 2) {
       res.status(400).json({ error: "Calle requerida" });
       return;
     }
     try {
-      const hit = await lookupCatastroByAddress(calle, numero);
+      const hit = await lookupCatastroByAddress(calle, numero, piso, puerta);
       if (!hit) {
         res.status(404).json({ error: "Sin resultado catastral" });
         return;
@@ -150,6 +152,28 @@ async function main() {
     } catch (e) {
       console.error("catastro lookup", e);
       res.status(502).json({ error: "Servicio de catastro no disponible" });
+    }
+  });
+
+  app.get("/api/catastro/wms", async (req, res) => {
+    const lat = Number(req.query.lat);
+    const lon = Number(req.query.lon);
+    if (!Number.isFinite(lat) || !Number.isFinite(lon)) {
+      res.status(400).json({ error: "Coordenadas requeridas" });
+      return;
+    }
+    try {
+      const img = await fetchCatastroWmsImage(lat, lon);
+      if (!img) {
+        res.status(502).json({ error: "Imagen WMS no disponible" });
+        return;
+      }
+      res.setHeader("Content-Type", "image/png");
+      res.setHeader("Cache-Control", "private, max-age=300");
+      res.send(img);
+    } catch (e) {
+      console.error("catastro wms", e);
+      res.status(502).json({ error: "Servicio WMS no disponible" });
     }
   });
 

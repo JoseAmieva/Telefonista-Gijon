@@ -13,9 +13,11 @@ export const GIJON_CATASTRO = {
 
 export type CatastroLookupResult = {
   refcat: string;
+  refcatCompleta?: string;
   del: string;
   mun: string;
   direccion?: string;
+  visor3dUrl?: string;
 };
 
 function streetNameFromUbicacion(state: UbicacionSlice): string {
@@ -69,13 +71,14 @@ export function buildCatastroUrl(
   state: UbicacionSlice,
   lookup?: CatastroLookupResult | null
 ): string {
+  if (lookup?.visor3dUrl) return lookup.visor3dUrl;
   if (lookup?.refcat) {
     return buildCatastroVisor3dUrl(lookup.refcat, lookup.del, lookup.mun);
   }
   return buildCatastroMapaUrl(state) ?? buildCatastroBusquedaUrl();
 }
 
-/** WMS catastro (imagen estática) alrededor de un punto UTM zona 30 (EPSG:25830). */
+/** @deprecated use server proxy apiCatastroWms */
 export function buildCatastroWmsImageUrl(utm: { x: number; y: number }, size = 400): string {
   const half = 120;
   const bbox = `${utm.x - half},${utm.y - half},${utm.x + half},${utm.y + half}`;

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { buildMapsQueryFromUbicacion, type UbicacionSlice } from "../incidents/maps";
-import type { CatastroLookupResult } from "../incidents/catastro";
+import type { CatastroLookupResult } from "../api";
 import { apiCatastroLookup } from "../api";
 
 export type GeoCoords = { lat: number; lon: number };
@@ -25,6 +25,8 @@ export function useLocationGeo(state: UbicacionSlice) {
   const query = buildMapsQueryFromUbicacion(state);
   const calle = state.ubicacion_zona === "urbana" ? state.urb_calle.trim() : state.rur_via.trim();
   const numero = state.ubicacion_zona === "urbana" ? state.urb_portal.trim() : "";
+  const piso = state.ubicacion_zona === "urbana" ? state.urb_piso.trim() : "";
+  const puerta = state.ubicacion_zona === "urbana" ? state.urb_puerta.trim() : "";
 
   const [coords, setCoords] = useState<GeoCoords | null>(null);
   const [catastro, setCatastro] = useState<CatastroLookupResult | null>(null);
@@ -44,7 +46,7 @@ export function useLocationGeo(state: UbicacionSlice) {
       try {
         const [geo, cat] = await Promise.all([
           geocodeQuery(query),
-          calle.length >= 2 ? apiCatastroLookup(calle, numero).catch(() => null) : Promise.resolve(null),
+          calle.length >= 2 ? apiCatastroLookup(calle, numero, piso, puerta).catch(() => null) : Promise.resolve(null),
         ]);
         if (!cancelled) {
           setCoords(geo);
@@ -58,7 +60,7 @@ export function useLocationGeo(state: UbicacionSlice) {
     return () => {
       cancelled = true;
     };
-  }, [query, calle, numero]);
+  }, [query, calle, numero, piso, puerta]);
 
   return { query, coords, catastro, loading };
 }

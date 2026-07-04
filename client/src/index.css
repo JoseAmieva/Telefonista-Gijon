@@ -7,10 +7,27 @@ html {
 }
 
 body {
-  @apply bg-slate-50 text-slate-900 min-h-screen;
+  @apply min-h-screen bg-central-bg text-central-text antialiased;
 }
 
-.leaflet-container {
-  z-index: 0;
-  font-family: inherit;
+input:not([type="radio"]):not([type="checkbox"]),
+textarea,
+select {
+  @apply rounded-xl border border-central-border bg-[#FAFAF7] px-3 py-2.5 text-sm text-central-text outline-none transition;
+}
+
+input:not([type="radio"]):not([type="checkbox"]):focus,
+textarea:focus,
+select:focus {
+  @apply border-central-amber ring-2 ring-central-amber/20;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-spin-slow {
+  animation: spin 0.7s linear infinite;
 }
