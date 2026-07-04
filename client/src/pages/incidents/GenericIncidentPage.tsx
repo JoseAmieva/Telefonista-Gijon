@@ -10,7 +10,8 @@ import { GenericIncidentSpecificSections } from "../../components/GenericInciden
 import type { GenericExtendedFormState } from "../../incidents/genericExtendedForm";
 import type { SharedRootFieldsState } from "../../incidents/sharedBasics";
 import { mergeGenericExtendedFromPayload } from "../../incidents/genericExtendedForm";
-import { buildMapsQueryFromUbicacion, buildMapsUrlFromPayload } from "../../incidents/maps";
+import { buildMapsQueryFromUbicacion } from "../../incidents/maps";
+import { LocationLinks } from "../../components/LocationLinks";
 
 const HAS_EXTRA_SECTION = new Set<IncidentKey>(["accidente_trafico", "rescate", "fachadas", "acceso_vivienda"]);
 
@@ -25,7 +26,6 @@ export default function GenericIncidentPage({ incidentKey }: { incidentKey: Inci
   const debounce = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const payload = useMemo(() => ({ ...form }), [form]);
-  const mapsUrl = useMemo(() => buildMapsUrlFromPayload(payload as Record<string, unknown>), [payload]);
 
   useEffect(() => {
     if (debounce.current) clearTimeout(debounce.current);
@@ -103,21 +103,10 @@ export default function GenericIncidentPage({ incidentKey }: { incidentKey: Inci
         <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm space-y-4">
           <SectionTitle>Ubicación (Gijón)</SectionTitle>
           <UbicacionFields form={form} patch={(k, v) => patch(k, v as SharedRootFieldsState[typeof k])} />
-          {mapsUrl && (
-            <div className="mt-2">
-              <a
-                href={mapsUrl}
-                target="_blank"
-                rel="noreferrer"
-                className="inline-flex rounded-lg bg-slate-900 text-white px-4 py-2 text-sm font-medium hover:bg-slate-800"
-              >
-                Abrir en Google Maps
-              </a>
-              <p className="text-xs text-slate-500 mt-2">
-                Texto de búsqueda: {buildMapsQueryFromUbicacion(form) ?? "(complete dirección)"}
-              </p>
-            </div>
-          )}
+          <LocationLinks ubicacion={form} />
+          <p className="text-xs text-slate-500 mt-1">
+            Búsqueda: {buildMapsQueryFromUbicacion(form) ?? "(complete dirección)"}
+          </p>
         </section>
 
         <GenericIncidentSpecificSections incidentKey={incidentKey} form={form} setForm={setForm} />

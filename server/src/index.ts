@@ -16,6 +16,7 @@ import {
   verifyToken,
 } from "./auth.js";
 import type { ActiveDraft, IncidentKey } from "./types.js";
+import { lookupCatastroByAddress } from "./catastro.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const PORT = Number(process.env.PORT) || 4000;
@@ -131,6 +132,26 @@ async function main() {
   });
 
   app.use("/api", authMiddleware);
+
+  app.get("/api/catastro/lookup", async (req, res) => {
+    const calle = String(req.query.calle ?? "").trim();
+    const numero = String(req.query.numero ?? "").trim();
+    if (calle.length < 2) {
+      res.status(400).json({ error: "Calle requerida" });
+      return;
+    }
+    try {
+      const hit = await lookupCatastroByAddress(calle, numero);
+      if (!hit) {
+        res.status(404).json({ error: "Sin resultado catastral" });
+        return;
+      }
+      res.json(hit);
+    } catch (e) {
+      console.error("catastro lookup", e);
+      res.status(502).json({ error: "Servicio de catastro no disponible" });
+    }
+  });
 
   app.get("/api/calls", (_req, res) => {
     res.json(listCalls());

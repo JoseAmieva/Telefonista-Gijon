@@ -64,6 +64,21 @@ export async function apiGetCall(id: string): Promise<CallRecord> {
   return r.json() as Promise<CallRecord>;
 }
 
+export type CatastroLookupResult = {
+  refcat: string;
+  del: string;
+  mun: string;
+  direccion?: string;
+};
+
+export async function apiCatastroLookup(calle: string, numero: string): Promise<CatastroLookupResult | null> {
+  const p = new URLSearchParams({ calle, numero });
+  const r = await fetch(`/api/catastro/lookup?${p.toString()}`, { credentials: "include" });
+  if (r.status === 404) return null;
+  if (!r.ok) throw new Error("No se pudo consultar el catastro");
+  return r.json() as Promise<CatastroLookupResult>;
+}
+
 export async function apiSaveCall(body: {
   id?: string;
   incidentKey: string;

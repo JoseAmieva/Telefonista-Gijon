@@ -14,7 +14,8 @@ import type { StructuralFormState } from "../incidents/structuralTypes";
 import type { SharedRootFieldsState } from "../incidents/sharedBasics";
 import type { GenericExtendedFormState } from "../incidents/genericExtendedForm";
 import { mergeGenericExtendedFromPayload } from "../incidents/genericExtendedForm";
-import { buildMapsQueryFromUbicacion, buildMapsUrlFromPayload } from "../incidents/maps";
+import { buildMapsQueryFromUbicacion } from "../incidents/maps";
+import { LocationLinks } from "../components/LocationLinks";
 
 function GenericHistorialEditor({ call }: { call: CallRecord }) {
   const [form, setForm] = useState<GenericExtendedFormState>(() =>
@@ -23,7 +24,6 @@ function GenericHistorialEditor({ call }: { call: CallRecord }) {
   const [msg, setMsg] = useState<string | null>(null);
 
   const key = call.incidentKey as IncidentKey;
-  const mapsUrl = buildMapsUrlFromPayload({ ...(call.payload as Record<string, unknown>), ...form });
 
   function patch<K extends keyof SharedRootFieldsState>(k: K, v: SharedRootFieldsState[K]) {
     setForm((f) => ({ ...f, [k]: v }));
@@ -58,21 +58,10 @@ function GenericHistorialEditor({ call }: { call: CallRecord }) {
           form={form}
           patch={(k, v) => patch(k as keyof SharedRootFieldsState, v as SharedRootFieldsState[keyof SharedRootFieldsState])}
         />
-        {mapsUrl && (
-          <div className="mt-2">
-            <a
-              href={mapsUrl}
-              target="_blank"
-              rel="noreferrer"
-              className="inline-flex rounded-lg bg-slate-900 text-white px-4 py-2 text-sm font-medium hover:bg-slate-800"
-            >
-              Abrir en Google Maps
-            </a>
-            <p className="text-xs text-slate-500 mt-2">
-              Texto de búsqueda: {buildMapsQueryFromUbicacion(form) ?? "(complete dirección)"}
-            </p>
-          </div>
-        )}
+        <LocationLinks ubicacion={form} />
+        <p className="text-xs text-slate-500 mt-1">
+          Búsqueda: {buildMapsQueryFromUbicacion(form) ?? "(complete dirección)"}
+        </p>
       </section>
 
       <GenericIncidentSpecificSections incidentKey={key} form={form} setForm={setForm} />

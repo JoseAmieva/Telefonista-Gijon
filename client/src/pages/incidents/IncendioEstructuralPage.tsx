@@ -1,9 +1,10 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuthDraft } from "../../context/AuthDraftContext";
 import { Btn, Label, RadioList, RadioYesNo, SectionTitle, TipBox } from "../../components/ui";
 import { CHULETA_AUTOPROTECCION_QUEDARSE, CHULETA_AUTOPROTECCION_SALIR } from "../../incidents/tips";
-import { buildMapsUrlFromStructural, buildMapsQueryFromStructural } from "../../incidents/maps";
+import { buildMapsQueryFromStructural } from "../../incidents/maps";
+import { LocationLinks } from "../../components/LocationLinks";
 import { mergeStructuralInitial } from "../../incidents/mergeStructuralInitial";
 import type { StructuralFormState } from "../../incidents/structuralTypes";
 import { apiSaveCall } from "../../api";
@@ -33,8 +34,6 @@ function StructuralForm({ callTime, savedCallId, initial }: Props) {
   const [savedId, setSavedId] = useState<string | undefined>(savedCallId);
   const [msg, setMsg] = useState<string | null>(null);
   const debounce = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-  const mapsUrl = useMemo(() => buildMapsUrlFromStructural(form), [form]);
 
   useEffect(() => {
     if (debounce.current) clearTimeout(debounce.current);
@@ -116,22 +115,11 @@ function StructuralForm({ callTime, savedCallId, initial }: Props) {
             form={form}
             patch={(k, v) => patch(k as keyof StructuralFormState, v as StructuralFormState[keyof StructuralFormState])}
           />
-          {mapsUrl && (
-            <div className="mt-4">
-              <a
-                href={mapsUrl}
-                target="_blank"
-                rel="noreferrer"
-                className="inline-flex rounded-lg bg-slate-900 text-white px-4 py-2 text-sm font-medium hover:bg-slate-800"
-              >
-                Abrir dirección en Google Maps
-              </a>
-              <p className="text-xs text-slate-500 mt-2">
-                La búsqueda se contextualiza siempre en Gijón, Asturias. Texto enviado:{" "}
-                {buildMapsQueryFromStructural(form) ?? "(complete dirección)"}
-              </p>
-            </div>
-          )}
+          <LocationLinks ubicacion={form} />
+          <p className="text-xs text-slate-500 mt-1">
+            La búsqueda se contextualiza siempre en Gijón, Asturias. Texto:{" "}
+            {buildMapsQueryFromStructural(form) ?? "(complete dirección)"}
+          </p>
         </section>
 
         <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">

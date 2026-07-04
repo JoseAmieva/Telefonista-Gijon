@@ -9,3 +9,8 @@ html {
 body {
   @apply bg-slate-50 text-slate-900 min-h-screen;
 }
+
+.leaflet-container {
+  z-index: 0;
+  font-family: inherit;
+}
