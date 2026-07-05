@@ -1,6 +1,7 @@
-import type { UbicacionSlice } from "../incidents/maps";
 import LocationDualPanel from "./maps/LocationDualPanel";
+import { buildMapsQueryFromUbicacion, type UbicacionSlice } from "../incidents/maps";
 
 export function LocationPreviews({ ubicacion }: { ubicacion: UbicacionSlice }) {
-  return <LocationDualPanel ubicacion={ubicacion} />;
+  const query = buildMapsQueryFromUbicacion(ubicacion);
+  return <LocationDualPanel key={query} ubicacion={ubicacion} />;
 }

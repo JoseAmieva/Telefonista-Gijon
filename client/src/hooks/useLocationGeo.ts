@@ -36,20 +36,23 @@ export function useLocationGeo(state: UbicacionSlice) {
     if (!query || query.length < 8) {
       setCoords(null);
       setCatastro(null);
+      setLoading(false);
       return;
     }
 
     let cancelled = false;
     setLoading(true);
+    setCoords(null);
+    setCatastro(null);
 
     (async () => {
       try {
-        const geo = await geocodeQuery(query);
-        let cat: CatastroLookupResult | null = null;
+        const [geo, catFromAddress] = await Promise.all([
+          geocodeQuery(query),
+          calle.length >= 2 ? apiCatastroLookup(calle, numero, piso, puerta).catch(() => null) : Promise.resolve(null),
+        ]);
 
-        if (calle.length >= 2) {
-          cat = await apiCatastroLookup(calle, numero, piso, puerta).catch(() => null);
-        }
+        let cat = catFromAddress;
         if (!cat && geo) {
           cat = await apiCatastroLookupCoords(geo.lat, geo.lon).catch(() => null);
         }
