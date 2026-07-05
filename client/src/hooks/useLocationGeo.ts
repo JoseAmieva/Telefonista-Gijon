@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { buildMapsQueryFromUbicacion, type UbicacionSlice } from "../incidents/maps";
 import type { CatastroLookupResult } from "../api";
-import { apiCatastroLookup } from "../api";
+import { apiCatastroLookup, apiCatastroLookupCoords } from "../api";
 
 export type GeoCoords = { lat: number; lon: number };
 
@@ -44,10 +44,16 @@ export function useLocationGeo(state: UbicacionSlice) {
 
     (async () => {
       try {
-        const [geo, cat] = await Promise.all([
-          geocodeQuery(query),
-          calle.length >= 2 ? apiCatastroLookup(calle, numero, piso, puerta).catch(() => null) : Promise.resolve(null),
-        ]);
+        const geo = await geocodeQuery(query);
+        let cat: CatastroLookupResult | null = null;
+
+        if (calle.length >= 2) {
+          cat = await apiCatastroLookup(calle, numero, piso, puerta).catch(() => null);
+        }
+        if (!cat && geo) {
+          cat = await apiCatastroLookupCoords(geo.lat, geo.lon).catch(() => null);
+        }
+
         if (!cancelled) {
           setCoords(geo);
           setCatastro(cat);

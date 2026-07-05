@@ -17,65 +17,59 @@ export type CatastroLookupResult = {
   del: string;
   mun: string;
   direccion?: string;
+  mapaUrl?: string;
   visor3dUrl?: string;
 };
 
-function streetNameFromUbicacion(state: UbicacionSlice): string {
-  if (state.ubicacion_zona === "urbana") return state.urb_calle.trim();
-  return state.rur_via.trim();
+function refcatEdificio(refcat: string): string {
+  const ref = refcat.replace(/\s/g, "");
+  return ref.length > 14 ? ref.slice(0, 14) : ref;
 }
 
-function portalFromUbicacion(state: UbicacionSlice): string {
-  if (state.ubicacion_zona === "urbana") return state.urb_portal.trim();
-  return "";
-}
-
-/** Enlace al mapa catastral 2D centrado en la dirección urbana. */
-export function buildCatastroMapaUrl(state: UbicacionSlice): string | null {
-  const via = streetNameFromUbicacion(state);
-  const numero = portalFromUbicacion(state);
-  if (!via || via.length < +2) return null;
-
-  const p = new URLSearchParams({
-    pest: "urbana",
-    from: "OVCBusqueda",
-    via,
-    tipoVia: "CL",
-    numero: numero || "0",
-    DescProv: GIJON_CATASTRO.descProv,
-    prov: GIJON_CATASTRO.prov,
-    mun: GIJON_CATASTRO.mun,
-    DescMuni: GIJON_CATASTRO.descMuni,
-    TipUR: "U",
-  });
-  return `https://www1.sedecatastro.gob.es/Cartografia/mapa.aspx?${p.toString()}`;
+/** Enlace al mapa catastral 2D (parcela/edificio). */
+export function buildCatastroMapaUrlFromLookup(lookup?: CatastroLookupResult | null): string | null {
+  if (lookup?.mapaUrl) return lookup.mapaUrl;
+  const ref = lookup?.refcatCompleta || lookup?.refcat;
+  if (!ref) return null;
+  return `https://www1.sedecatastro.gob.es/Cartografia/mapa.aspx?refcat=${encodeURIComponent(ref.replace(/\s/g, ""))}`;
 }
 
 /** Visor 3D del edificio cuando se conoce la referencia catastral. */
-export function buildCatastroVisor3dUrl(refcat: string, del?: string, mun?: string): string {
-  const p = new URLSearchParams({
-    del: del ?? GIJON_CATASTRO.del,
-    mun: mun ?? GIJON_CATASTRO.mun,
-    refcat: refcat.replace(/\s+/g, ""),
-  });
+export function buildCatastroVisor3dUrl(
+  refcat: string,
+  del?: string,
+  mun?: string,
+  refcatCompleta?: string
+): string | null {
+  const d = (del ?? GIJON_CATASTRO.del).trim();
+  const m = (mun ?? GIJON_CATASTRO.mun).trim();
+  const ref = (refcatCompleta || refcatEdificio(refcat)).replace(/\s/g, "");
+  if (!d || !m || !ref) return null;
+  const p = new URLSearchParams({ del: d, mun: m, refcat: ref, final: "" });
   return `https://www1.sedecatastro.gob.es/Cartografia/FXCC/Visor3D.aspx?${p.toString()}`;
 }
 
-/** Búsqueda general en la sede (sin dirección prefijada). */
-export function buildCatastroBusquedaUrl(): string {
-  return "https://www1.sedecatastro.gob.es/CYCBienInmueble/OVCBusqueda.aspx";
+/** Mejor enlace 2D disponible. */
+export function buildCatastroMapaUrl(
+  _state: UbicacionSlice,
+  lookup?: CatastroLookupResult | null
+): string | null {
+  return buildCatastroMapaUrlFromLookup(lookup);
 }
 
-/** Mejor enlace disponible: 3D si hay refcat, si no mapa 2D o buscador. */
+/** Mejor enlace 3D disponible. */
+export function buildCatastroVisorUrl(lookup?: CatastroLookupResult | null): string | null {
+  if (lookup?.visor3dUrl) return lookup.visor3dUrl;
+  if (!lookup?.refcat) return null;
+  return buildCatastroVisor3dUrl(lookup.refcat, lookup.del, lookup.mun, lookup.refcatCompleta);
+}
+
+/** @deprecated use buildCatastroMapaUrl / buildCatastroVisorUrl */
 export function buildCatastroUrl(
   state: UbicacionSlice,
   lookup?: CatastroLookupResult | null
-): string {
-  if (lookup?.visor3dUrl) return lookup.visor3dUrl;
-  if (lookup?.refcat) {
-    return buildCatastroVisor3dUrl(lookup.refcat, lookup.del, lookup.mun);
-  }
-  return buildCatastroMapaUrl(state) ?? buildCatastroBusquedaUrl();
+): string | null {
+  return buildCatastroVisorUrl(lookup) ?? buildCatastroMapaUrl(state, lookup);
 }
 
 /** @deprecated use server proxy apiCatastroWms */
