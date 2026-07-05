@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 import type { UbicacionSlice } from "../../incidents/maps";
 import { buildMapsUrlFromUbicacion } from "../../incidents/maps";
-import { buildCatastroMapaUrl, buildCatastroVisor3dUrl } from "../../incidents/catastro";
+import { buildCatastroMapaUrl, buildCatastroVisorUrl } from "../../incidents/catastro";
 import { useLocationGeo } from "../../hooks/useLocationGeo";
 import CanvasMap from "./CanvasMap";
 import CatastroThumbnail from "./CatastroThumbnail";
@@ -50,11 +50,8 @@ function Visor3DCard({ url }: { url: string }) {
 export default function LocationDualPanel({ ubicacion }: { ubicacion: UbicacionSlice }) {
   const { query, coords, catastro, loading } = useLocationGeo(ubicacion);
   const mapsUrl = buildMapsUrlFromUbicacion(ubicacion);
-  const catastro3dUrl = catastro?.visor3dUrl
-    ? catastro.visor3dUrl
-    : catastro?.refcat
-      ? buildCatastroVisor3dUrl(catastro.refcat, catastro.del, catastro.mun)
-      : buildCatastroMapaUrl(ubicacion) ?? "https://www1.sedecatastro.gob.es/CYCBienInmueble/OVCBusqueda.aspx";
+  const catastroMapaUrl = buildCatastroMapaUrl(ubicacion, catastro);
+  const visor3dUrl = buildCatastroVisorUrl(catastro);
 
   if (!query || query.length < 8) return null;
 
@@ -89,21 +86,41 @@ export default function LocationDualPanel({ ubicacion }: { ubicacion: UbicacionS
 
         <div>
           <PanelLabel>Catastro · plano parcelario</PanelLabel>
-          <a href={catastro3dUrl} target="_blank" rel="noreferrer" className="relative block" title="Abrir catastro">
-            {coords ? (
-              <CatastroThumbnail lat={coords.lat} lon={coords.lon} height={MAP_H} />
+          <div className="relative">
+            {catastroMapaUrl ? (
+              <a href={catastroMapaUrl} target="_blank" rel="noreferrer" className="block" title="Abrir mapa catastral">
+                {coords ? (
+                  <CatastroThumbnail lat={coords.lat} lon={coords.lon} height={MAP_H} />
+                ) : (
+                  <div className="flex items-center justify-center text-sm text-[#7A8898]" style={{ height: MAP_H }}>
+                    Geocodificando…
+                  </div>
+                )}
+              </a>
             ) : (
-              <div className="flex items-center justify-center text-sm text-[#7A8898]" style={{ height: MAP_H }}>
-                Geocodificando…
+              <div className="block">
+                {coords ? (
+                  <CatastroThumbnail lat={coords.lat} lon={coords.lon} height={MAP_H} />
+                ) : (
+                  <div className="flex items-center justify-center text-sm text-[#7A8898]" style={{ height: MAP_H }}>
+                    Geocodificando…
+                  </div>
+                )}
               </div>
             )}
-            <span
-              className="pointer-events-none absolute right-2 top-2 rounded-md px-2 py-1 text-[11px] font-bold text-white"
-              style={{ background: theme.amber }}
-            >
-              3D
-            </span>
-          </a>
+            {visor3dUrl && (
+              <a
+                href={visor3dUrl}
+                target="_blank"
+                rel="noreferrer"
+                className="absolute right-2 top-2 rounded-md px-2 py-1 text-[11px] font-bold text-white no-underline"
+                style={{ background: theme.amber }}
+                title="Abrir visor 3D del edificio"
+              >
+                3D
+              </a>
+            )}
+          </div>
         </div>
       </div>
 
@@ -120,20 +137,35 @@ export default function LocationDualPanel({ ubicacion }: { ubicacion: UbicacionS
         >
           {query} ↗
         </a>
-        <a
-          href={catastro3dUrl}
-          target="_blank"
-          rel="noreferrer"
-          className="font-semibold no-underline hover:underline"
-          style={{ color: theme.amber }}
-        >
-          {catastro?.refcat ? `Ref. ${catastro.refcat} · Visor 3D` : "Abrir Catastro ↗"}
-        </a>
+        <div className="flex flex-wrap gap-x-3 gap-y-1">
+          {catastroMapaUrl && (
+            <a
+              href={catastroMapaUrl}
+              target="_blank"
+              rel="noreferrer"
+              className="font-semibold no-underline hover:underline"
+              style={{ color: theme.amber }}
+            >
+              {catastro?.refcat ? `Ref. ${catastro.refcat} · Mapa` : "Abrir mapa Catastro ↗"}
+            </a>
+          )}
+          {visor3dUrl && (
+            <a
+              href={visor3dUrl}
+              target="_blank"
+              rel="noreferrer"
+              className="font-semibold no-underline hover:underline"
+              style={{ color: theme.navy }}
+            >
+              Visor 3D ↗
+            </a>
+          )}
+        </div>
       </div>
 
-      {catastro?.visor3dUrl && (
+      {visor3dUrl && (
         <div className="border-t px-4 py-3" style={{ borderColor: theme.border }}>
-          <Visor3DCard url={catastro.visor3dUrl} />
+          <Visor3DCard url={visor3dUrl} />
         </div>
       )}
     </div>

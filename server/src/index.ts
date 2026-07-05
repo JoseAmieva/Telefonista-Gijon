@@ -16,7 +16,7 @@ import {
   verifyToken,
 } from "./auth.js";
 import type { ActiveDraft, IncidentKey } from "./types.js";
-import { lookupCatastroByAddress, fetchCatastroWmsImage } from "./catastro.js";
+import { lookupCatastroByAddress, lookupCatastroByCoords, fetchCatastroWmsImage } from "./catastro.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const PORT = Number(process.env.PORT) || 4000;
@@ -151,6 +151,26 @@ async function main() {
       res.json(hit);
     } catch (e) {
       console.error("catastro lookup", e);
+      res.status(502).json({ error: "Servicio de catastro no disponible" });
+    }
+  });
+
+  app.get("/api/catastro/lookup-coords", async (req, res) => {
+    const lat = Number(req.query.lat);
+    const lon = Number(req.query.lon);
+    if (!Number.isFinite(lat) || !Number.isFinite(lon)) {
+      res.status(400).json({ error: "Coordenadas requeridas" });
+      return;
+    }
+    try {
+      const hit = await lookupCatastroByCoords(lat, lon);
+      if (!hit) {
+        res.status(404).json({ error: "Sin resultado catastral en esas coordenadas" });
+        return;
+      }
+      res.json(hit);
+    } catch (e) {
+      console.error("catastro lookup-coords", e);
       res.status(502).json({ error: "Servicio de catastro no disponible" });
     }
   });

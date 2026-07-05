@@ -70,6 +70,7 @@ export type CatastroLookupResult = {
   del: string;
   mun: string;
   direccion?: string;
+  mapaUrl?: string;
   visor3dUrl?: string;
 };
 
@@ -83,6 +84,14 @@ export async function apiCatastroLookup(
   const r = await fetch(`/api/catastro/lookup?${p.toString()}`, { credentials: "include" });
   if (r.status === 404) return null;
   if (!r.ok) throw new Error("No se pudo consultar el catastro");
+  return r.json() as Promise<CatastroLookupResult>;
+}
+
+export async function apiCatastroLookupCoords(lat: number, lon: number): Promise<CatastroLookupResult | null> {
+  const p = new URLSearchParams({ lat: String(lat), lon: String(lon) });
+  const r = await fetch(`/api/catastro/lookup-coords?${p.toString()}`, { credentials: "include" });
+  if (r.status === 404) return null;
+  if (!r.ok) throw new Error("No se pudo consultar el catastro por coordenadas");
   return r.json() as Promise<CatastroLookupResult>;
 }
 
