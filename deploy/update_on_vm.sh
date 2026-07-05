@@ -50,12 +50,7 @@ echo "== Dependencias y build"
 npm ci
 npm run build
 
-echo "== Reinicio servicio"
-sudo systemctl restart telefonista
-sleep 2
-sudo systemctl --no-pager status telefonista | sed -n '1,12p' || true
-
-echo "== Comprobación local"
-curl -sS -I http://127.0.0.1:4000/ | head -n 1 || true
+echo "== Servicio systemd y .env"
+bash "$APP_DIR/deploy/repair_service.sh"
 
 echo "Listo. Recarga https://pruebacentralita.duckdns.org"
