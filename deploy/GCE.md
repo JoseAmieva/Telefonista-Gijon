@@ -4,21 +4,33 @@ VM de ejemplo: zona `us-west1-b`, IP externa `136.117.52.81`. Ajusta nombres de 
 
 ## Actualizar la app (sin recordar contraseñas SSH)
 
-**No hace falta contraseña de la VM.** Entra con tu cuenta de Google desde el navegador:
+**No hace falta contraseña de la VM ni tu cuenta de GitHub.** El SSH de Google Cloud usa tu **cuenta de Google** (la misma con la que entras en GCP), no GitHub.
 
-1. Abre la [consola de GCP → Instancias de VM](https://console.cloud.google.com/compute/instances?project=project-ee762301-896e-4615-821).
-2. En la fila `instance-20260512-183708`, pulsa **SSH** (se abre un terminal en el navegador).
-3. Pega y ejecuta (la VM **no usa git** — se desplegó con tarball; este script clona la última versión):
+### Si al pulsar SSH se cierra la ventana al instante
+
+Prueba en este orden:
+
+1. **Cloud Shell** (suele ser lo más fiable): en la consola de GCP, arriba a la derecha, icono **>_** (Activar Cloud Shell). Cuando abra el terminal, pega:
+
+```bash
+gcloud compute ssh --zone "us-west1-b" "instance-20260512-183708" --project "project-ee762301-896e-4615-821"
+```
+
+2. **SSH en ventana aparte**: en la lista de instancias, flecha junto a **SSH** → **Abrir en ventana del navegador** (no en panel lateral).
+
+3. **No uses credenciales de GitHub** para entrar a la VM. GitHub solo sirve para el código en GitHub.com; no es el login del servidor.
+
+### Actualizar la centralita (dentro de la VM o tras conectar por Cloud Shell)
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/JoseAmieva/Telefonista-Gijon/main/deploy/update_on_vm.sh | bash
 ```
 
-Si ya tienes el script en el servidor:
+Pasos manuales con el botón SSH del navegador:
 
-```bash
-cd /opt/telefonista-gijon && bash deploy/update_on_vm.sh
-```
+1. Abre la [consola de GCP → Instancias de VM](https://console.cloud.google.com/compute/instances?project=project-ee762301-896e-4615-821).
+2. En la fila `instance-20260512-183708`, pulsa **SSH** (o usa Cloud Shell arriba).
+3. Pega el comando `curl ... update_on_vm.sh` de arriba.
 
 4. Recarga [http://pruebacentralita.duckdns.org](http://pruebacentralita.duckdns.org).
 
