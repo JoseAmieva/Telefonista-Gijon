@@ -23,7 +23,10 @@ cd /opt/telefonista-gijon
 
 echo "== Extract tarball"
 if [ -f .env ]; then cp .env /tmp/telefonista.env.bak; fi
-if [ -d server/data ]; then tar -czf /tmp/telefonista-data-bak.tgz -C server data; fi
+if [ -d server/data ]; then
+  rm -f /tmp/telefonista-data-bak.tgz 2>/dev/null || sudo rm -f /tmp/telefonista-data-bak.tgz 2>/dev/null || true
+  tar -czf /tmp/telefonista-data-bak.tgz -C server data
+fi
 
 rm -rf /opt/telefonista-gijon/*
 tar -xzf /tmp/telefonista-gijon.tgz -C /opt/telefonista-gijon

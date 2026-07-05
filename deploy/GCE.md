@@ -51,16 +51,19 @@ set -euo pipefail
 APP=/opt/telefonista-gijon
 REPO="https://github.com/JoseAmieva/Telefonista-Gijon.git"
 [ -n "${GITHUB_TOKEN:-}" ] && REPO="https://${GITHUB_TOKEN}@github.com/JoseAmieva/Telefonista-Gijon.git"
-[ -f "$APP/.env" ] && cp "$APP/.env" /tmp/telefonista.env.bak
-[ -d "$APP/server/data" ] && tar -czf /tmp/telefonista-data-bak.tgz -C "$APP/server" data || true
-rm -rf /tmp/telefonista-gijon-clone
-git clone --depth 1 -b main "$REPO" /tmp/telefonista-gijon-clone
+BACKUP_DIR="$(mktemp -d)"
+trap 'rm -rf "$BACKUP_DIR"' EXIT
+[ -f "$APP/.env" ] && cp "$APP/.env" "$BACKUP_DIR/.env"
+[ -d "$APP/server/data" ] && tar -czf "$BACKUP_DIR/data.tgz" -C "$APP/server" data || true
+CLONE_DIR="$(mktemp -d)"
+git clone --depth 1 -b main "$REPO" "$CLONE_DIR"
 find "$APP" -mindepth 1 -maxdepth 1 ! -name '.env' -exec rm -rf {} +
-cp -a /tmp/telefonista-gijon-clone/. "$APP"/
+cp -a "$CLONE_DIR"/. "$APP"/
+rm -rf "$CLONE_DIR"
 cd "$APP"
-[ -f /tmp/telefonista.env.bak ] && mv /tmp/telefonista.env.bak .env
+[ -f "$BACKUP_DIR/.env" ] && mv "$BACKUP_DIR/.env" .env
 mkdir -p server/data
-[ -f /tmp/telefonista-data-bak.tgz ] && tar -xzf /tmp/telefonista-data-bak.tgz -C server || true
+[ -f "$BACKUP_DIR/data.tgz" ] && tar -xzf "$BACKUP_DIR/data.tgz" -C server || true
 npm ci && npm run build && sudo systemctl restart telefonista
 echo "Listo — recarga https://pruebacentralita.duckdns.org"
 ```
