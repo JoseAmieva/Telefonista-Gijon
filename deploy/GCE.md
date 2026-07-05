@@ -98,8 +98,21 @@ sudo systemctl restart telefonista
 
 ```bash
 cd /opt/telefonista-gijon
-git pull
+git pull origin main
 npm ci
 npm run build
 sudo systemctl restart telefonista
+```
+
+O en un solo paso:
+
+```bash
+cd /opt/telefonista-gijon && bash deploy/pull_on_vm.sh
+```
+
+Desde tu máquina (con `gcloud` configurado):
+
+```bash
+gcloud compute ssh --zone "us-west1-b" "instance-20260512-183708" --project "project-ee762301-896e-4615-821" \
+  --command "cd /opt/telefonista-gijon && git pull origin main && npm ci && npm run build && sudo systemctl restart telefonista"
 ```
