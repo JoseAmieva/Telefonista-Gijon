@@ -22,17 +22,48 @@ gcloud compute ssh --zone "us-west1-b" "instance-20260512-183708" --project "pro
 
 ### Actualizar la centralita (dentro de la VM o tras conectar por Cloud Shell)
 
+El repositorio en GitHub es **privado**, así que `curl` a `raw.githubusercontent.com` devuelve **404**. Opciones:
+
+**A) Hacer el repo público** (más simple para esta centralita de prueba): GitHub → *Telefonista-Gijon* → Settings → Danger zone → *Change repository visibility* → Public. Luego:
+
 ```bash
 curl -fsSL https://raw.githubusercontent.com/JoseAmieva/Telefonista-Gijon/main/deploy/update_on_vm.sh | bash
 ```
 
-Pasos manuales con el botón SSH del navegador:
+**B) Repo privado:** crea un [token de acceso personal](https://github.com/settings/tokens) con permiso `repo`, y en la VM (sustituye `TU_TOKEN`, no lo compartas con nadie):
 
-1. Abre la [consola de GCP → Instancias de VM](https://console.cloud.google.com/compute/instances?project=project-ee762301-896e-4615-821).
-2. En la fila `instance-20260512-183708`, pulsa **SSH** (o usa Cloud Shell arriba).
-3. Pega el comando `curl ... update_on_vm.sh` de arriba.
+```bash
+export GITHUB_TOKEN="TU_TOKEN"
+git clone --depth 1 -b main "https://${GITHUB_TOKEN}@github.com/JoseAmieva/Telefonista-Gijon.git" /tmp/telefonista-gijon-clone
+# … luego el bloque «Actualizar sin curl» de abajo (desde «APP=/opt/telefonista-gijon»).
+```
+
+**C) Sin curl ni token:** pega el bloque completo «Actualizar sin curl» de la sección siguiente (clona solo si el repo es público o ya exportaste `GITHUB_TOKEN`).
 
 4. Recarga [http://pruebacentralita.duckdns.org](http://pruebacentralita.duckdns.org).
+
+### Actualizar sin curl (pegar entero en la VM)
+
+Si el repo es **público**, o antes has hecho `export GITHUB_TOKEN="..."` (repo privado):
+
+```bash
+set -euo pipefail
+APP=/opt/telefonista-gijon
+REPO="https://github.com/JoseAmieva/Telefonista-Gijon.git"
+[ -n "${GITHUB_TOKEN:-}" ] && REPO="https://${GITHUB_TOKEN}@github.com/JoseAmieva/Telefonista-Gijon.git"
+[ -f "$APP/.env" ] && cp "$APP/.env" /tmp/telefonista.env.bak
+[ -d "$APP/server/data" ] && tar -czf /tmp/telefonista-data-bak.tgz -C "$APP/server" data || true
+rm -rf /tmp/telefonista-gijon-clone
+git clone --depth 1 -b main "$REPO" /tmp/telefonista-gijon-clone
+find "$APP" -mindepth 1 -maxdepth 1 ! -name '.env' -exec rm -rf {} +
+cp -a /tmp/telefonista-gijon-clone/. "$APP"/
+cd "$APP"
+[ -f /tmp/telefonista.env.bak ] && mv /tmp/telefonista.env.bak .env
+mkdir -p server/data
+[ -f /tmp/telefonista-data-bak.tgz ] && tar -xzf /tmp/telefonista-data-bak.tgz -C server || true
+npm ci && npm run build && sudo systemctl restart telefonista
+echo "Listo — recarga https://pruebacentralita.duckdns.org"
+```
 
 **Login de la aplicación** (no es la VM): por defecto `user1` / `user1` (configurable en `.env` con `APP_USER` y `APP_PASSWORD`).
 
