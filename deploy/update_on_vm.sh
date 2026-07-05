@@ -6,18 +6,27 @@ set -euo pipefail
 APP_DIR="${APP_DIR:-/opt/telefonista-gijon}"
 REPO_URL="${REPO_URL:-https://github.com/JoseAmieva/Telefonista-Gijon.git}"
 BRANCH="${BRANCH:-main}"
+USER_NAME="$(whoami)"
 
 BACKUP_DIR="$(mktemp -d)"
 trap 'rm -rf "$BACKUP_DIR"' EXIT
 
-cd "$APP_DIR"
+sudo mkdir -p "$APP_DIR"
 
 echo "== Respaldo .env y datos"
-if [ -f .env ]; then cp .env "$BACKUP_DIR/.env"; fi
-if [ -d server/data ]; then tar -czf "$BACKUP_DIR/data.tgz" -C server data; fi
+if [ -f "$APP_DIR/.env" ]; then
+  cp "$APP_DIR/.env" "$BACKUP_DIR/.env" 2>/dev/null || sudo cp "$APP_DIR/.env" "$BACKUP_DIR/.env"
+fi
+if [ -d "$APP_DIR/server/data" ]; then
+  tar -czf "$BACKUP_DIR/data.tgz" -C "$APP_DIR/server" data 2>/dev/null \
+    || sudo tar -czf "$BACKUP_DIR/data.tgz" -C "$APP_DIR/server" data
+fi
+sudo chown -R "$USER_NAME:$USER_NAME" "$BACKUP_DIR" 2>/dev/null || true
 
-if [ -d .git ]; then
+if [ -d "$APP_DIR/.git" ]; then
   echo "== Git pull (repo existente)"
+  sudo chown -R "$USER_NAME:$USER_NAME" "$APP_DIR"
+  cd "$APP_DIR"
   git fetch origin "$BRANCH"
   git checkout "$BRANCH"
   git pull origin "$BRANCH"
@@ -26,12 +35,11 @@ else
   CLONE_DIR="$(mktemp -d)"
   git clone --depth 1 -b "$BRANCH" "$REPO_URL" "$CLONE_DIR"
   echo "== Limpiar instalación anterior"
-  if ! find "$APP_DIR" -mindepth 1 -maxdepth 1 ! -name '.env' -print -exec rm -rf {} + 2>/dev/null; then
-    sudo find "$APP_DIR" -mindepth 1 -maxdepth 1 ! -name '.env' -exec rm -rf {} +
-  fi
+  sudo find "$APP_DIR" -mindepth 1 -maxdepth 1 ! -name '.env' -exec rm -rf {} +
+  sudo chown -R "$USER_NAME:$USER_NAME" "$APP_DIR"
   cp -a "$CLONE_DIR"/. "$APP_DIR"/
-  sudo chown -R "$(whoami):$(whoami)" "$APP_DIR"
   rm -rf "$CLONE_DIR"
+  cd "$APP_DIR"
 fi
 
 if [ -f "$BACKUP_DIR/.env" ]; then mv "$BACKUP_DIR/.env" .env; fi
