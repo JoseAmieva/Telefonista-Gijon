@@ -1,0 +1,22 @@
+# Blueprint opcional: despliegue en Render (alternativa a la VM GCE).
+# Dashboard → New → Blueprint → conectar repo y aplicar este archivo.
+services:
+  - type: web
+    name: telefonista-gijon
+    runtime: node
+    plan: free
+    region: frankfurt
+    buildCommand: npm ci && npm run build
+    startCommand: npm start
+    healthCheckPath: /
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: JWT_SECRET
+        generateValue: true
+      - key: APP_USER
+        value: user1
+      - key: APP_PASSWORD
+        value: user1
+      - key: CLIENT_ORIGIN
+        sync: false

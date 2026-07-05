@@ -2,7 +2,32 @@
 
 VM de ejemplo: zona `us-west1-b`, IP externa `136.117.52.81`. Ajusta nombres de instancia y proyecto a los tuyos.
 
-## 1. Entrar por SSH
+## Actualizar la app (sin recordar contraseñas SSH)
+
+**No hace falta contraseña de la VM.** Entra con tu cuenta de Google desde el navegador:
+
+1. Abre la [consola de GCP → Instancias de VM](https://console.cloud.google.com/compute/instances?project=project-ee762301-896e-4615-821).
+2. En la fila `instance-20260512-183708`, pulsa **SSH** (se abre un terminal en el navegador).
+3. Pega y ejecuta:
+
+```bash
+cd /opt/telefonista-gijon && git pull origin main && npm ci && npm run build && sudo systemctl restart telefonista
+```
+
+4. Recarga [http://pruebacentralita.duckdns.org](http://pruebacentralita.duckdns.org).
+
+**Login de la aplicación** (no es la VM): por defecto `user1` / `user1` (configurable en `.env` con `APP_USER` y `APP_PASSWORD`).
+
+### Despliegue automático (una sola vez)
+
+Para que cada `push` a `main` actualice la VM sin entrar a mano:
+
+1. En GCP, genera o usa una clave SSH para el usuario `ubuntu` de la VM.
+2. En GitHub → repo **Telefonista-Gijon** → Settings → Secrets → Actions → **New secret**
+3. Nombre: `VM_SSH_KEY` — valor: la clave privada completa.
+4. El workflow `.github/workflows/deploy-vm.yml` desplegará solo en cada push a `main`.
+
+## 1. Entrar por SSH (alternativa con gcloud local)
 
 ```bash
 gcloud compute ssh --zone "us-west1-b" "instance-20260512-183708" --project "project-ee762301-896e-4615-821"

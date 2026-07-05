@@ -1,0 +1,32 @@
+# Despliegue automático en la VM de GCE.
+# Requiere un secreto en GitHub: VM_SSH_KEY (clave privada SSH con acceso a la VM).
+# También se puede lanzar manualmente: Actions → Deploy VM → Run workflow
+name: Deploy VM
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: 136.117.52.81
+          username: ubuntu
+          key: ${{ secrets.VM_SSH_KEY }}
+          script_stop: true
+          script: |
+            set -euo pipefail
+            cd /opt/telefonista-gijon
+            git fetch origin main
+            git checkout main
+            git pull origin main
+            npm ci
+            npm run build
+            sudo systemctl restart telefonista
+            sleep 2
+            curl -sS -I http://127.0.0.1:4000/ | head -n 1
