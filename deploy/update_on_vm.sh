@@ -25,8 +25,12 @@ else
   echo "== Sin .git: clonar última versión (despliegue original era tarball, no git)"
   CLONE_DIR="$(mktemp -d)"
   git clone --depth 1 -b "$BRANCH" "$REPO_URL" "$CLONE_DIR"
-  find "$APP_DIR" -mindepth 1 -maxdepth 1 ! -name '.env' -exec rm -rf {} +
+  echo "== Limpiar instalación anterior"
+  if ! find "$APP_DIR" -mindepth 1 -maxdepth 1 ! -name '.env' -print -exec rm -rf {} + 2>/dev/null; then
+    sudo find "$APP_DIR" -mindepth 1 -maxdepth 1 ! -name '.env' -exec rm -rf {} +
+  fi
   cp -a "$CLONE_DIR"/. "$APP_DIR"/
+  sudo chown -R "$(whoami):$(whoami)" "$APP_DIR"
   rm -rf "$CLONE_DIR"
 fi
 

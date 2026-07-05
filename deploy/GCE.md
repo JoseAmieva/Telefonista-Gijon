@@ -57,8 +57,11 @@ trap 'rm -rf "$BACKUP_DIR"' EXIT
 [ -d "$APP/server/data" ] && tar -czf "$BACKUP_DIR/data.tgz" -C "$APP/server" data || true
 CLONE_DIR="$(mktemp -d)"
 git clone --depth 1 -b main "$REPO" "$CLONE_DIR"
-find "$APP" -mindepth 1 -maxdepth 1 ! -name '.env' -exec rm -rf {} +
+if ! find "$APP" -mindepth 1 -maxdepth 1 ! -name '.env' -exec rm -rf {} + 2>/dev/null; then
+  sudo find "$APP" -mindepth 1 -maxdepth 1 ! -name '.env' -exec rm -rf {} +
+fi
 cp -a "$CLONE_DIR"/. "$APP"/
+sudo chown -R "$(whoami):$(whoami)" "$APP"
 rm -rf "$CLONE_DIR"
 cd "$APP"
 [ -f "$BACKUP_DIR/.env" ] && mv "$BACKUP_DIR/.env" .env
