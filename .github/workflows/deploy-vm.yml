@@ -16,17 +16,8 @@ jobs:
         uses: appleboy/ssh-action@v1.2.0
         with:
           host: 136.117.52.81
-          username: ubuntu
+          username: jamievam
           key: ${{ secrets.VM_SSH_KEY }}
           script_stop: true
           script: |
-            set -euo pipefail
-            cd /opt/telefonista-gijon
-            git fetch origin main
-            git checkout main
-            git pull origin main
-            npm ci
-            npm run build
-            sudo systemctl restart telefonista
-            sleep 2
-            curl -sS -I http://127.0.0.1:4000/ | head -n 1
+            curl -fsSL https://raw.githubusercontent.com/JoseAmieva/Telefonista-Gijon/main/deploy/update_on_vm.sh | bash

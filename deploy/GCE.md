@@ -8,10 +8,16 @@ VM de ejemplo: zona `us-west1-b`, IP externa `136.117.52.81`. Ajusta nombres de 
 
 1. Abre la [consola de GCP → Instancias de VM](https://console.cloud.google.com/compute/instances?project=project-ee762301-896e-4615-821).
 2. En la fila `instance-20260512-183708`, pulsa **SSH** (se abre un terminal en el navegador).
-3. Pega y ejecuta:
+3. Pega y ejecuta (la VM **no usa git** — se desplegó con tarball; este script clona la última versión):
 
 ```bash
-cd /opt/telefonista-gijon && git pull origin main && npm ci && npm run build && sudo systemctl restart telefonista
+curl -fsSL https://raw.githubusercontent.com/JoseAmieva/Telefonista-Gijon/main/deploy/update_on_vm.sh | bash
+```
+
+Si ya tienes el script en el servidor:
+
+```bash
+cd /opt/telefonista-gijon && bash deploy/update_on_vm.sh
 ```
 
 4. Recarga [http://pruebacentralita.duckdns.org](http://pruebacentralita.duckdns.org).
@@ -22,7 +28,7 @@ cd /opt/telefonista-gijon && git pull origin main && npm ci && npm run build && 
 
 Para que cada `push` a `main` actualice la VM sin entrar a mano:
 
-1. En GCP, genera o usa una clave SSH para el usuario `ubuntu` de la VM.
+1. En GCP, genera o usa una clave SSH para tu usuario de la VM (ej. `jamievam`).
 2. En GitHub → repo **Telefonista-Gijon** → Settings → Secrets → Actions → **New secret**
 3. Nombre: `VM_SSH_KEY` — valor: la clave privada completa.
 4. El workflow `.github/workflows/deploy-vm.yml` desplegará solo en cada push a `main`.
@@ -121,23 +127,14 @@ sudo systemctl restart telefonista
 
 ## Actualizar versión
 
+En la VM (SSH navegador):
+
 ```bash
-cd /opt/telefonista-gijon
-git pull origin main
-npm ci
-npm run build
-sudo systemctl restart telefonista
+cd /opt/telefonista-gijon && bash deploy/update_on_vm.sh
 ```
 
-O en un solo paso:
+Desde tu máquina con `gcloud` (método original del agente: tarball + `deploy_vm.sh`):
 
 ```bash
-cd /opt/telefonista-gijon && bash deploy/pull_on_vm.sh
-```
-
-Desde tu máquina (con `gcloud` configurado):
-
-```bash
-gcloud compute ssh --zone "us-west1-b" "instance-20260512-183708" --project "project-ee762301-896e-4615-821" \
-  --command "cd /opt/telefonista-gijon && git pull origin main && npm ci && npm run build && sudo systemctl restart telefonista"
+bash deploy/push_from_local.sh
 ```
